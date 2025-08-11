@@ -1,0 +1,18 @@
+{
+  "FIRST_NAME": "John",
+  "LAST_NAME": "Doe",
+  "GMAIL_USERNAME": "kien.test.nguyenuc12231",
+  "GMAIL_PASSWORD": "Str0ngP@ssw0rd!234",
+  "RECOVERY_EMAIL": "",
+  "PHONE_NUMBER": "093",
+
+  "PROXY": "45.150.109.57:10003:kien:kienkien123",
+  "PROXY_SCHEME": "http",
+
+  "CAMOUFOX_OS": "macos",
+  "HEADLESS": false,
+  "HUMANIZE": true,
+  "PERSISTENT_CONTEXT": false,
+  "USER_DATA_DIR": "profiles/${GMAIL_USERNAME}",
+  "DEBUG": false
+} 
