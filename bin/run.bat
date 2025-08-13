@@ -9,13 +9,13 @@ REM Python
 set PYTHON=python
 
 REM Create venv if missing
-if not exist .venv (
-  echo [setup] Creating virtual environment (.venv)
-  %PYTHON% -m venv .venv
+if not exist venv (
+  echo [setup] Creating virtual environment (venv)
+  %PYTHON% -m venv venv
 )
 
 REM Activate venv
-call .venv\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 REM Install dependencies
 pip install -U pip >nul

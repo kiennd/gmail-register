@@ -1,8 +1,9 @@
 from datetime import date
+import re
 import random
 from typing import Optional
 
-from .human_actions import human_delay, fill_first_present_slowly, fill_slowly
+from .human_actions import human_delay, fill_first_present_slowly, fill_slowly, type_into_locator_slowly
 
 MONTH_LABELS = [
     "January", "February", "March", "April", "May", "June",
@@ -11,240 +12,468 @@ MONTH_LABELS = [
 
 
 def click_next(page) -> None:
-    try:
-        page.get_by_role("button", name="Next").click()
-        return
-    except Exception:
-        pass
-    try:
-        page.locator('button:has-text("Next")').first.click()
-        return
-    except Exception:
-        pass
-    try:
-        page.locator('div[role="button"]:has-text("Next")').first.click()
-    except Exception:
-        raise RuntimeError("Could not locate a 'Next' button. UI may have changed or is localized.")
-
-
-def select_first_present_by_label(page, selectors: list[str], label: str) -> bool:
-    for sel in selectors:
+    print("[DEBUG] Clicking Next button...")
+    labels = ["Next", "Tiếp theo", "Siguiente", "Suivant", "Weiter", "Avanti", "Далее"]
+    for text in labels:
         try:
-            locator = page.locator(sel)
-            if locator.count() > 0:
-                try:
-                    locator.first.select_option(label=label)
-                    return True
-                except Exception:
-                    return False
+            for selector in [
+                page.get_by_role("button", name=text),
+                page.locator(f'button:has-text("{text}")'),
+                page.locator(f'div[role="button"]:has-text("{text}")'),
+            ]:
+                if selector.count():
+                    print(f"[DEBUG] Found Next button with text: {text}")
+                    selector.first.click(); return
         except Exception:
             continue
-    return False
+    # Fallbacks
+    print("[DEBUG] Using fallback button selectors...")
+    for fallback in [
+        page.locator('button[type="submit"]'),
+        page.get_by_role("button")
+    ]:
+        try:
+            if fallback.count():
+                print(f"[DEBUG] Clicked fallback button")
+                fallback.first.click(); return
+        except Exception:
+            continue
+    print("[ERROR] Could not locate any Next/Submit button")
+    raise RuntimeError("Could not locate a Next/Submit button.")
 
 
-def choose_dropdown(page, field_label: str, option_text: str) -> bool:
-    if select_by_label_if_present(page, field_label, option_text):
-        return True
+def is_verification_block_page(page) -> bool:
+    print("[DEBUG] Checking for verification block page...")
+    block_texts = [
+        "Verify some info before creating an account",
+        "Scan the QR code with your phone",
+        "Confirm you're not a robot",
+        "Get a verification code sent to your phone",
+        "Xác minh một số thông tin trước khi tạo tài khoản",
+        "Quét mã QR bằng điện thoại của bạn",
+        "Xác nhận bạn không phải là robot",
+        "Gửi mã xác minh đến điện thoại của bạn",
+        "Xác nhận bạn không phải là rô bốt"
+    ]
     try:
-        combo = page.get_by_role("combobox", name=field_label)
-        if combo.count() == 0:
-            combo = page.get_by_role("button", name=field_label)
-        if combo.count() == 0:
-            combo = page.get_by_label(field_label)
-        if combo.count() > 0:
-            combo.first.click()
+        # Robust role-based detection for the heading
+        try:
+            if page.get_by_role("heading", name=re.compile(r"verify some info", re.I)).count() > 0:
+                print("[DEBUG] Found heading role indicating verification block")
+                return True
+        except Exception:
+            pass
+        try:
+            h = page.locator("#headingText")
+            if h.count() and re.search(r"verify some info", (h.first.inner_text() or ""), re.I):
+                print("[DEBUG] Found #headingText with verification text")
+                return True
+        except Exception:
+            pass
+        for text in block_texts:
+            if page.locator(f'text="{text}"').count() > 0:
+                print(f"[DEBUG] Found verification block text: {text}")
+                return True
+        # QR code heuristic
+        if page.locator('img[alt*="QR" i], canvas[aria-label*="QR" i]').count() > 0:
+            print("[DEBUG] Found QR code elements - verification block detected")
+            return True
+        print("[DEBUG] No verification block detected")
+        return False
+    except Exception as e:
+        print(f"[DEBUG] Error checking verification block: {e}")
+        return False
+
+
+def maybe_choose_recommended_email(page) -> str | None:
+    print("[DEBUG] Checking for email recommendation page...")
+    try:
+        headings = ["Choose your Gmail address", "Chọn địa chỉ Gmail của bạn"]
+        detected = False
+        for _ in range(10):
+            for h in headings:
+                if page.get_by_role("heading", name=h).count():
+                    print(f"[DEBUG] Found email recommendation page with heading: {h}")
+                    detected = True; break
+            if detected: break
+            page.wait_for_timeout(200)
+        if not detected:
+            # Heuristic: presence of usernameRadio inputs indicates recommendation screen
             try:
-                page.get_by_role("option", name=option_text).first.click()
+                if page.locator('input[name="usernameRadio"]').count() > 0:
+                    print("[DEBUG] Heuristic: Found usernameRadio inputs; assuming recommendation page")
+                    detected = True
             except Exception:
-                page.locator(f'text="{option_text}"').first.click()
-            return True
-    except Exception:
-        pass
-    return False
+                pass
+        if not detected:
+            print("[DEBUG] No email recommendation page detected")
+            return None
 
+        # Prefer direct input[name="usernameRadio"] and skip the 'custom' option
+        selected_local = None
+        try:
+            options = page.locator('input[name="usernameRadio"]').all()
+            for opt in options:
+                try:
+                    val = (opt.get_attribute("value") or "").strip()
+                    if not val or val.lower() == "custom":
+                        continue
+                    opt.check()
+                    selected_local = val
+                    print(f"[DEBUG] Selected suggested username local-part via input: {selected_local}")
+                    break
+                except Exception:
+                    continue
+        except Exception:
+            pass
 
-def select_by_label_if_present(page, field_label: str, option_label: str) -> bool:
-    try:
-        loc = page.get_by_label(field_label)
-        if loc.count() > 0:
-            loc.first.select_option(label=option_label)
-            return True
-    except Exception:
-        pass
-    return False
+        # Fallback: role=radio if direct inputs fail
+        if not selected_local:
+            radios = page.get_by_role("radio")
+            if radios.count() == 0:
+                print("[DEBUG] No radio options found")
+                return None
+            first = radios.first
+            try:
+                suggested = first.get_attribute("aria-label") or first.inner_text()
+                print(f"[DEBUG] Suggested email: {suggested}")
+                if suggested and "@" in suggested:
+                    selected_local = suggested.split("@", 1)[0].strip()
+            except Exception:
+                print("[DEBUG] Could not extract suggested email text")
+            first.click(); human_delay(200, 400)
+            print("[DEBUG] Selected first radio option via role=radio")
+
+        click_next(page); human_delay(600, 900)
+
+        if selected_local:
+            print(f"[DEBUG] Using selected local part: {selected_local}")
+            return selected_local
+        print("[DEBUG] Could not extract local part from suggested email")
+        return None
+    except Exception as e:
+        print(f"[DEBUG] Error in email recommendation: {e}")
+        return None
 
 
 def fill_by_label_if_present(page, field_label: str, value: str) -> bool:
     try:
         loc = page.get_by_label(field_label)
         if loc.count() > 0:
-            loc.first.fill(value)
-            return True
+            try:
+                return type_into_locator_slowly(loc.first, value)
+            except Exception:
+                loc.first.fill(value); return True
     except Exception:
         pass
     return False
 
 
-def maybe_fill_basic_info(page) -> bool:
+def _bring_to_front(page) -> None:
     try:
+        page.bring_to_front()
+        print("[DEBUG] Brought page to front")
+    except Exception:
+        try:
+            page.evaluate("() => window.focus()")
+            print("[DEBUG] Focused window via evaluate")
+        except Exception:
+            pass
+
+
+def first_present_label(page, labels: list[str]) -> str | None:
+    for lab in labels:
+        try:
+            if page.get_by_label(lab).count() > 0:
+                return lab
+        except Exception:
+            continue
+    return None
+
+
+def choose_month(page, month_label: str, month_idx: int) -> bool:
+    print(f"[DEBUG] Choosing month: {month_label} (index {month_idx})")
+    try:
+        # Try localized comboboxes by accessible name or label
+        for label in ["Month", "Tháng"]:
+            for opener in [page.get_by_role("combobox", name=label), page.get_by_label(label)]:
+                try:
+                    if opener.count() > 0:
+                        print(f"[DEBUG] Found month combobox via '{label}', clicking...")
+                        opener.first.click(); human_delay(100, 200)                        
+                        try:
+                            page.keyboard.press("Home")
+                            for _ in range(max(0, month_idx - 1)):
+                                page.keyboard.press("ArrowDown")
+                                human_delay(40, 80)
+                            page.keyboard.press("Enter")
+                            print("[DEBUG] Selected month via keyboard fallback")
+                            return True
+                        except Exception:
+                            pass
+                    
+                except Exception:
+                    continue
+        # Try select element fallbacks
+        print("[DEBUG] Trying month select elements...")
+        for sel in ['select[name="month"]', 'select#month', 'select[aria-label="Month"]', 'select[aria-label="Tháng"]']:
+            try:
+                loc = page.locator(sel)
+                if loc.count() > 0:
+                    print(f"[DEBUG] Found select element: {sel}")
+                    loc.first.select_option(index=month_idx - 1)
+                    print(f"[DEBUG] Selected month by index: {month_idx - 1}")
+                    return True
+            except Exception:
+                continue
+        print("[DEBUG] Could not select month")
+        return False
+    except Exception as e:
+        print(f"[DEBUG] Error choosing month: {e}")
+        return False
+
+
+def pick_gender_any(page) -> bool:
+    print("[DEBUG] Picking gender...")
+    try:
+        # Open dropdown
+        opened = False
+        for opener in [
+            page.get_by_label("Gender"),
+            page.get_by_role("combobox", name="Gender"),
+            page.get_by_role("combobox", name="Giới tính"),
+            page.get_by_label("Giới tính")
+        ]:
+            if opener.count() > 0:
+                print("[DEBUG] Found gender dropdown, clicking...")
+                opener.first.click(); human_delay(100, 200); opened = True; break
+        if not opened:
+            print("[DEBUG] No gender dropdown found")
+        # Pick first available
+        for text in ["Male", "Female", "Nam", "Nữ"]:
+            for method_name, method in [
+                ("role=option", lambda t: page.get_by_role("option", name=t)),
+                ("text", lambda t: page.locator(f'text="{t}"'))
+            ]:
+                try:
+                    loc = method(text)
+                    if loc.count() > 0:
+                        print(f"[DEBUG] Found gender option '{text}' via {method_name}")
+                        loc.first.click(); human_delay(120, 200); return True
+                except Exception:
+                    continue
+        # Keyboard fallback
+        print("[DEBUG] Using keyboard fallback for gender...")
+        try:
+            page.keyboard.press("Home"); page.keyboard.press("ArrowDown"); page.keyboard.press("Enter")
+            print("[DEBUG] Gender selected via keyboard")
+            return True
+        except Exception:
+            pass
+        print("[DEBUG] Could not select gender")
+        return False
+    except Exception as e:
+        print(f"[DEBUG] Error picking gender: {e}")
+        return False
+
+
+def maybe_fill_basic_info(page) -> bool:
+    print("[DEBUG] Filling basic info page...")
+    try:
+        # Wait for page
+        print("[DEBUG] Waiting for basic info page to load...")
         for _ in range(10):
-            if page.get_by_label("Month").count() or page.get_by_role("heading", name="Basic information").count():
+            if (page.get_by_label("Month").count() or page.get_by_label("Tháng").count() or
+                page.get_by_role("heading", name="Basic information").count()):
+                print("[DEBUG] Basic info page detected")
                 break
             page.wait_for_timeout(300)
 
+        # Generate data
         today = date.today()
         age = random.randint(19, 40)
         year_val = today.year - age
-        month_idx = random.randint(1, 12)
+        month_idx = random.randint(1, 3)
         day_val = random.randint(1, 28)
         month_label = MONTH_LABELS[month_idx - 1]
-        gender_label = random.choice(["Male", "Female", "Rather not say"])
+        print(f"[DEBUG] Generated data - Age: {age}, Date: {month_label} {day_val}, {year_val}")
 
-        for attempt in range(5):
-            ok_month = choose_dropdown(page, "Month", month_label) or select_first_present_by_label(
-                page, ['select[name="month"]', 'select#month', 'select[aria-label="Month"]'], month_label
-            )
+        for attempt in range(3):
+            print(f"[DEBUG] Basic info attempt {attempt + 1}/3")
+            # Month
+            ok_month = choose_month(page, month_label, month_idx)
             human_delay(300, 500)
             
+            # Day
+            print(f"[DEBUG] Filling day: {day_val}")
             ok_day = False
-            for day_sel in ['input[name="day"]', 'input#day', 'input[aria-label="Day"]', 'input[placeholder="Day"]']:
+            for day_sel in ['input[name="day"]', 'input#day', 'input[aria-label="Day"]', 'input[aria-label="Ngày"]']:
                 try:
                     day_field = page.locator(day_sel)
                     if day_field.count() > 0:
-                        day_field.first.click()
-                        day_field.first.clear()
-                        day_field.first.fill(str(day_val))
-                        ok_day = True
-                        break
+                        print(f"[DEBUG] Found day field: {day_sel}")
+                        type_into_locator_slowly(day_field.first, str(day_val))
+                        ok_day = True; break
                 except Exception:
                     continue
             if not ok_day:
-                ok_day = fill_by_label_if_present(page, "Day", str(day_val))
+                print("[DEBUG] Trying day field by label...")
+                day_label_name = first_present_label(page, ["Day", "Ngày"]) or "Day"
+                ok_day = fill_by_label_if_present(page, day_label_name, str(day_val))
+            print(f"[DEBUG] Day filled: {ok_day}")
             human_delay(300, 500)
             
-            ok_year = fill_by_label_if_present(page, "Year", str(year_val)) or True
+            # Year
+            print(f"[DEBUG] Filling year: {year_val}")
+            ok_year = False
+            year_label_name = first_present_label(page, ["Year", "Năm"]) or "Year"
+            try:
+                year_field = page.get_by_label(year_label_name)
+                if year_field.count() > 0:
+                    print(f"[DEBUG] Found year field by label: {year_label_name}")
+                    ok_year = type_into_locator_slowly(year_field.first, str(year_val))
+            except Exception:
+                pass
+            if not ok_year:
+                print("[DEBUG] Trying year field fallback...")
+                ok_year = fill_by_label_if_present(page, year_label_name, str(year_val)) or True
+            print(f"[DEBUG] Year filled: {ok_year}")
             human_delay(300, 500)
             
-            ok_gender = choose_dropdown(page, "Gender", gender_label)
+            # Gender
+            ok_gender = pick_gender_any(page)
+            print(f"[DEBUG] Gender selected: {ok_gender}")
             
             if ok_month and ok_day and ok_year and ok_gender:
+                print("[DEBUG] All basic info fields completed successfully")
                 break
-            elif attempt < 4:
+            elif attempt < 2:
+                print(f"[DEBUG] Some fields failed - Month: {ok_month}, Day: {ok_day}, Year: {ok_year}, Gender: {ok_gender}")
                 page.wait_for_timeout(500)
 
         human_delay(800, 1200)
         click_next(page)
+        print("[DEBUG] Basic info page completed")
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG] Error in basic info page: {e}")
         return False
 
 
 def maybe_fill_username_page(page, username: str) -> bool:
+    print("[DEBUG] Filling username page...")
     try:
         detected = False
-        for _ in range(10):
-            if page.get_by_label("Username").count() or page.get_by_role("heading", name="How you'll sign in").count():
-                detected = True
-                break
-            page.wait_for_timeout(300)
+        for _ in range(20):
+            if (page.get_by_label("Username").count() or
+                page.get_by_label("Tên người dùng").count() or
+                page.get_by_role("heading", name="How you'll sign in").count() or
+                page.get_by_role("heading", name="Cách bạn sẽ đăng nhập").count()):
+                detected = True; break
+            page.wait_for_timeout(250)
         if not detected:
+            print("[DEBUG] Username page not detected")
             return False
 
         attempt_username = username
-        for _ in range(5):
+        for attempt in range(4):
+            print(f"[DEBUG] Username attempt {attempt+1}: {attempt_username}")
             try:
                 filled = fill_first_present_slowly(page, [
-                    'input[name="Username"]', 'input#username', 'input[aria-label="Username"]'
+                    'input[name="Username"]', 'input#username',
+                    'input[aria-label="Username"]', 'input[aria-label="Tên người dùng"]'
                 ], attempt_username)
-                if not filled and page.get_by_label("Username").count():
-                    fill_slowly(page, 'input[aria-label="Username"]', attempt_username)
+                if not filled:
+                    for label in ["Username", "Tên người dùng"]:
+                        try:
+                            if page.get_by_label(label).count():
+                                type_into_locator_slowly(page.get_by_label(label).first, attempt_username)
+                                filled = True; break
+                        except Exception:
+                            continue
+            except Exception as e:
+                print(f"[DEBUG] Error while filling username: {e}")
+
+            human_delay(600, 1000)
+            click_next(page)
+            page.wait_for_timeout(1200)
+
+            taken = False
+            try:
+                if (page.locator('text="That username is taken"').count() or
+                    page.locator('text="Try another"').count() or
+                    page.locator('text="Tên người dùng đã được sử dụng"').count() or
+                    page.locator('text="Hãy thử tên khác"').count() or
+                    page.locator('text="Hãy thử một cái khác"').count()):
+                    taken = True
+                    print("[DEBUG] Username appears taken; retrying with new suffix")
             except Exception:
                 pass
 
-            human_delay(800, 1200)
-            click_next(page)
-
-            page.wait_for_timeout(1000)
-            taken = False
-            try:
-                if page.locator('text="That username is taken"').count() or page.locator('text="Try another"').count():
-                    taken = True
-            except Exception:
-                taken = False
-
             if not taken:
+                print("[DEBUG] Username accepted")
                 return True
 
-            suffix = str(random.randint(100, 9999))
-            attempt_username = f"{username}{suffix}"
-            human_delay(500, 1000)
+            extra_digits = ''.join(str(random.randint(0, 9)) for _ in range(random.randint(5, 8)))
+            attempt_username = f"{username}{extra_digits}"
+            human_delay(400, 800)
 
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[DEBUG] Error in username page: {e}")
         return False
 
 
 def maybe_fill_password_page(page, password: str) -> bool:
     try:
+        # Wait for password page
         for _ in range(10):
             if (page.get_by_label("Password").count() or 
-                page.get_by_label("Create a password").count() or 
-                page.locator('input[name="Passwd"], input#passwd').count() or
                 page.locator('input[type="password"]').count()):
                 break
             page.wait_for_timeout(300)
 
-        filled_password = False
-        filled_confirm = False
+        filled_password = filled_confirm = False
 
+        # Try labeled fields
         if page.get_by_label("Password").count():
             try:
-                page.get_by_label("Password").first.click()
-                page.get_by_label("Password").first.fill(password)
-                filled_password = True
-                human_delay(400, 700)
+                type_into_locator_slowly(page.get_by_label("Password").first, password)
+                filled_password = True; human_delay(400, 700)
             except Exception:
                 pass
         if page.get_by_label("Confirm").count():
             try:
-                page.get_by_label("Confirm").first.click()
-                page.get_by_label("Confirm").first.fill(password)
-                filled_confirm = True
-                human_delay(400, 700)
+                type_into_locator_slowly(page.get_by_label("Confirm").first, password)
+                filled_confirm = True; human_delay(400, 700)
             except Exception:
                 pass
 
+        # Try password inputs by type
         if not filled_password or not filled_confirm:
             pw_inputs = page.locator('input[type="password"]').all()
             if len(pw_inputs) >= 2:
                 try:
                     if not filled_password:
-                        pw_inputs[0].click(); pw_inputs[0].fill(password)
-                        filled_password = True
-                        human_delay(400, 700)
+                        type_into_locator_slowly(pw_inputs[0], password)
+                        filled_password = True; human_delay(400, 700)
                     if not filled_confirm:
-                        pw_inputs[1].click(); pw_inputs[1].fill(password)
-                        filled_confirm = True
-                        human_delay(400, 700)
+                        type_into_locator_slowly(pw_inputs[1], password)
+                        filled_confirm = True; human_delay(400, 700)
                 except Exception:
                     pass
 
+        # Final fallbacks
         if not filled_password:
             filled_password = fill_first_present_slowly(page, [
                 'input[name="Passwd"]', 'input#passwd', 'input[type="password"]'
             ], password)
             human_delay(400, 700)
-        if not filled_confirm:
-            filled_confirm = fill_first_present_slowly(page, [
-                'input[name="ConfirmPasswd"]', 'input#confirm-passwd', 'input[type="password"]:nth-of-type(2)'
-            ], password)
 
         if filled_password and filled_confirm:
             human_delay(800, 1200)
             click_next(page)
             return True
-        elif filled_password or filled_confirm:
-            return True
-        return False
+        return filled_password or filled_confirm
     except Exception:
-        return False 
+        return False

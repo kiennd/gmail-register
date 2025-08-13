@@ -34,19 +34,16 @@ def load_config_from_file(path: str) -> Dict[str, Any]:
     raw["USER_DATA_DIR"] = interpolate_vars(raw.get("USER_DATA_DIR"), raw)
 
     cfg: Dict[str, Any] = {
-        "first_name": raw.get("FIRST_NAME"),
-        "last_name": raw.get("LAST_NAME"),
-        "username": raw.get("GMAIL_USERNAME"),
-        "password": raw.get("GMAIL_PASSWORD"),
-        "recovery_email": raw.get("RECOVERY_EMAIL") or None,
-        "phone_number": raw.get("PHONE_NUMBER") or None,
-        "proxy_legacy": raw.get("PROXY") or None,
-        "proxy_scheme": raw.get("PROXY_SCHEME") or None,
         "camoufox_os": (raw.get("CAMOUFOX_OS") or "windows").strip().lower(),
+        "camoufox_config": raw.get("CAMOUFOX_CONFIG") or None,
         "headless": raw.get("HEADLESS", False),
         "humanize": parse_bool(raw.get("HUMANIZE"), True),
         "persistent_context": parse_bool(raw.get("PERSISTENT_CONTEXT"), True),
         "user_data_dir": raw.get("USER_DATA_DIR") or None,
         "debug": parse_bool(raw.get("DEBUG"), False),
+        # Camoufox options
+        "camoufox_args": raw.get("CAMOUFOX_ARGS") or None,
+        # UI language
+        "lang": raw.get("LANG") or None,
     }
     return cfg 

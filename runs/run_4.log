@@ -1,0 +1,47 @@
+Using identity (random): John Anderson, username=john.anderson45185212
+Launching Camoufox...
+Traceback (most recent call last):
+  File "C:\Users\OS\Desktop\gmail-register\register_gmail.py", line 130, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\OS\Desktop\gmail-register\register_gmail.py", line 111, in main
+    register_flow(
+    ~~~~~~~~~~~~~^
+        cfg=effective_cfg,
+        ^^^^^^^^^^^^^^^^^^
+        camou_kwargs=camou_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        wait_seconds=args.wait_seconds,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\OS\Desktop\gmail-register\app\register.py", line 197, in register_flow
+    with Camoufox(**camou_kwargs) as browser:
+         ~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\camoufox\sync_api.py", line 29, in __enter__
+    self.browser = NewBrowser(self._playwright, **self.launch_options)
+                   ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\camoufox\sync_api.py", line 86, in NewBrowser
+    from_options = launch_options(headless=headless, debug=debug, **kwargs)
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\camoufox\utils.py", line 505, in launch_options
+    fingerprint = generate_fingerprint(
+        screen=screen or get_screen_cons(headless or 'DISPLAY' in env),
+        window=window,
+        os=os,
+    )
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\camoufox\fingerprints.py", line 132, in generate_fingerprint
+    fingerprint = FP_GENERATOR.generate(**config)
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\browserforge\fingerprints\generator.py", line 195, in generate
+    headers = self.header_generator.generate(**header_kwargs)
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\browserforge\headers\generator.py", line 159, in generate
+    generated: Dict[str, str] = self._get_headers(
+                                ~~~~~~~~~~~~~~~~~^
+        **{k: v for k, v in options.items() if v is not None}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\OS\Desktop\gmail-register\venv\Lib\site-packages\browserforge\headers\generator.py", line 226, in _get_headers
+    raise ValueError(
+        'No headers based on this input can be generated. Please relax or change some of the requirements you specified.'
+    )
+ValueError: No headers based on this input can be generated. Please relax or change some of the requirements you specified.
