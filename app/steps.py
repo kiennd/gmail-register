@@ -3,7 +3,7 @@ import re
 import random
 from typing import Optional
 
-from .human_actions import human_delay, fill_first_present_slowly, fill_slowly, type_into_locator_slowly
+from .human_actions import human_delay, fill_first_present_slowly, fill_slowly, type_into_locator_slowly, paste_text_via_clipboard
 
 MONTH_LABELS = [
     "January", "February", "March", "April", "May", "June",
@@ -444,7 +444,8 @@ def maybe_fill_password_page(page, password: str) -> bool:
                 pass
         if page.get_by_label("Confirm").count():
             try:
-                type_into_locator_slowly(page.get_by_label("Confirm").first, password)
+                confirm_field = page.get_by_label("Confirm").first
+                paste_text_via_clipboard(page, confirm_field, password)
                 filled_confirm = True; human_delay(400, 700)
             except Exception:
                 pass
@@ -458,8 +459,11 @@ def maybe_fill_password_page(page, password: str) -> bool:
                         type_into_locator_slowly(pw_inputs[0], password)
                         filled_password = True; human_delay(400, 700)
                     if not filled_confirm:
-                        type_into_locator_slowly(pw_inputs[1], password)
-                        filled_confirm = True; human_delay(400, 700)
+                        try:
+                            paste_text_via_clipboard(page, pw_inputs[1], password)
+                            filled_confirm = True; human_delay(400, 700)
+                        except Exception:
+                            pass
                 except Exception:
                     pass
 
