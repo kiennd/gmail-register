@@ -301,6 +301,61 @@ class HidemiumClient:
         }
         return self._make_request('POST', '/v4/profile/proxy', json=payload)
 
+    def update_fingerprint(self, profile_uuid: str, is_local: bool = True) -> dict:
+        """
+        Update fingerprint for a profile (PUT /v2/browser/change-fingerprint)
+        Args:
+            profile_uuid: UUID of the profile
+            is_local: Whether the profile is local (default: True)
+        Returns:
+            Response JSON from Hidemium API
+        """
+        params = {"is_local": str(is_local).lower()}
+        payload = {"profile_uuid": profile_uuid}
+        return self._make_request('PUT', '/v2/browser/change-fingerprint', params=params, json=payload)
+
+    def load_browser_profile_config_from_file(self, json_path: str, profile_name: str) -> dict:
+        """
+        Load browser profile config from a JSON file and set the profile name.
+        Args:
+            json_path: Path to the JSON config file
+            profile_name: Name for the new profile
+        Returns:
+            Config dict with updated name
+        """
+        with open(json_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        config['name'] = profile_name
+        return config
+
+    def create_browser_profile(self, profile_name: str, is_local: bool = True, source: str = "hidemium_application_ui") -> dict:
+        """
+        Create a new browser profile using /v2/browser endpoint with config loaded from browser_profile_template.json.
+        Args:
+            profile_name: Name for the new profile
+            is_local: True for local profile
+            source: Source string for _source param
+        Returns:
+            Response JSON from Hidemium API
+        """
+        import os
+        template_path = os.path.join(os.path.dirname(__file__), '../browser_profile_template.json')
+        with open(template_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        config['name'] = profile_name
+        params = {
+            "_source": source,
+            "is_local": str(is_local).lower()
+        }
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Hidemium_4/4.1.6 Chrome/122.0.6261.156 Electron/29.4.6 Safari/537.36"
+        }
+        payload = config
+        return self._make_request('POST', '/v2/browser', params=params, json=payload, headers=headers)
+
     def connect_to_profile(self, profile_uuid: str, command: Optional[str] = None, proxy: Optional[str] = None, max_retries: int = 10) -> Page:
         """
         Connect to an opened Hidemium profile using Playwright

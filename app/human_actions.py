@@ -15,37 +15,21 @@ def human_delay(min_ms: int = 500, max_ms: int = 1500) -> None:
     time.sleep(delay)
 
 
-def fill_slowly(page, selector: str, value: str) -> bool:
+def fill_slowly(page, field, value: str) -> bool:
     try:
-        locator = page.locator(selector)
-        if locator.count() == 0:
-            return False
-        field = locator.first
-        field.click()
-        human_delay(200, 500)
+
+        # locator = page.locator(selector)
+        # if locator.count() == 0:
+        #     return False
+        # print(f"[DEBUG] Filling slowly: {selector}")
+        # field = locator.first
+        human_click(page, field)
+        human_delay(500, 1000)
         field.clear()
-        human_delay(100, 300)
+        human_delay(500, 700)
         for char in value:
             field.type(char)
-            time.sleep(random.uniform(0.05, 0.15))
-        human_delay(200, 400)
-        return True
-    except Exception:
-        return False
-
-
-def type_into_locator_slowly(field, value: str) -> bool:
-    try:
-        field.click()
-        human_delay(200, 500)
-        try:
-            field.clear()
-        except Exception:
-            pass
-        human_delay(100, 300)
-        for char in value:
-            field.type(char)
-            time.sleep(random.uniform(0.1, 0.2))
+            time.sleep(random.uniform(0.3, 0.7))
         human_delay(200, 400)
         return True
     except Exception:
@@ -57,7 +41,7 @@ def fill_first_present_slowly(page, selectors: list[str], value: Optional[str]) 
         return False
     for sel in selectors:
         try:
-            if fill_slowly(page, sel, value):
+            if fill_slowly(page, page.locator(sel).first, value):
                 return True
         except Exception:
             continue
@@ -78,9 +62,8 @@ def paste_text_via_clipboard(page, field, text: str) -> bool:
         if _CLIPBOARD_AVAILABLE and platform.system() == "Windows":
             try:
                 pyperclip.copy(text)
-                human_delay(60, 120)
                 page.keyboard.press("Control+V")
-                human_delay(120, 220)
+                human_delay(300, 500)
                 return True
             except Exception:
                 pass
@@ -88,6 +71,30 @@ def paste_text_via_clipboard(page, field, text: str) -> bool:
         # Fallback to direct insert if clipboard fails
         page.keyboard.insert_text(text)
         human_delay(120, 220)
+        return True
+    except Exception:
+        return False
+
+
+def human_click(page, locator_or_element, min_delay: int = 200, max_delay: int = 1000) -> bool:
+    """
+    Move mouse to center of element, delay, then click (simulate human click).
+    locator_or_element: Playwright Locator or ElementHandle
+    """
+    try:
+        # Support both Locator and ElementHandle
+        if hasattr(locator_or_element, 'bounding_box'):
+            box = locator_or_element.bounding_box()
+        else:
+            box = locator_or_element.first.bounding_box()
+        if not box:
+            return False
+        x = box['x'] + box['width'] / 2
+        y = box['y'] + box['height'] / 2
+        page.mouse.move(x, y, steps=30)
+        human_delay(min_delay, max_delay)
+        page.mouse.click(x, y)
+        human_delay(min_delay, max_delay)
         return True
     except Exception:
         return False

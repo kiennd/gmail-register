@@ -1,7 +1,7 @@
 import sys
 from typing import Any, Dict, Optional
 
-from .human_actions import human_delay, type_into_locator_slowly
+from .human_actions import fill_slowly, human_delay
 from .steps import (
     maybe_fill_basic_info,
     maybe_fill_username_page,
@@ -24,7 +24,7 @@ WORKSPACE_LANDING_URL = "https://workspace.google.com/intl/en-US/gmail/"
 
 # Actual Google account creation endpoint
 SIGNUP_URL = (
-    "https://accounts.google.com/signup/v2/webcreateaccount?flowName=GlifWebSignIn&flowEntry=SignUp"
+    "https://accounts.google.com/signup/v2/createaccount?service=mail&continue=https://mail.google.com/mail/&flowName=GlifWebSignIn&flowEntry=SignUp&ec=asw-gmail-hero-create&theme=glif"
 )
 
 
@@ -136,41 +136,30 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
     
     # Build complete profile configuration using new custom API
     try:
-        profile_config = client.build_default_profile_config(
-            name=profile_name,
-            proxy=proxy,
-            os_type=os_type,
-            language=language
-        )
-        
-        # Add any additional custom settings from config
-        if cfg.get("hidemium_custom_config"):
-            profile_config.update(cfg["hidemium_custom_config"])
-        
         # Create profile using custom API with full configuration
         is_local = cfg.get("hidemium_local_profile", True)
         print(f"Creating {'local' if is_local else 'cloud'} profile with custom configuration...")
         
-        response = client.create_profile_custom(
-            profile_config=profile_config,
-            is_local=is_local
-        )
+        response = client.create_browser_profile(profile_name, True)
         
         # Extract UUID from response (support both cloud and local formats)
         profile_uuid = None
         if isinstance(response, dict):
-            if response.get("type") == "success":
+            if response.get("status") == "success":
                 content = response.get("content", {})
                 if isinstance(content, dict):
-                    profile_uuid = content.get("uuid") or content.get("id")
-            elif response.get("uuid"):
-                profile_uuid = response.get("uuid")
+                    profile_uuid = content.get("uuid")
         
         if not profile_uuid:
             raise ValueError(f"Profile creation failed: {response}")
             
         print(f"Created temporary profile with UUID: {profile_uuid}")
+        try:
+            client.update_fingerprint(profile_uuid, is_local=is_local)
+        except Exception as e:
+            print(f"Warning: Failed to update fingerprint: {e}")
         return profile_uuid
+        # return "local-c34620b3-3ccb-4fdc-951f-cf08513b6143"
         
     except Exception as e:
         print(f"Failed to create temporary profile: {e}")
@@ -220,11 +209,6 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
         except Exception:
             pass
         page.goto(final_url, timeout=90_000)
-        try:
-            from .steps import _bring_to_front
-            _bring_to_front(page)
-        except Exception:
-            pass
 
         page.wait_for_selector('input[name="firstName"]', timeout=60_000)
         try:
@@ -232,27 +216,27 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
             _bring_to_front(page)
         except Exception:
             pass
-        human_delay(800, 1400)
+        human_delay(3000, 5000)
         if cfg.get("first_name"):
             try:
-                type_into_locator_slowly(page.locator('input[name="firstName"]').first, cfg["first_name"])
+                fill_slowly(page, page.locator('input[name="firstName"]').first, cfg["first_name"])
             except Exception:
                 page.locator('input[name="firstName"]').fill(cfg["first_name"])  # fallback
         human_delay(300, 700)
         if cfg.get("last_name"):
             try:
-                type_into_locator_slowly(page.locator('input[name="lastName"]').first, cfg["last_name"]) 
+                fill_slowly(page, page.locator('input[name="lastName"]').first, cfg["last_name"]) 
             except Exception:
                 page.locator('input[name="lastName"]').fill(cfg["last_name"])  # fallback
-        human_delay(600, 1000)
+        human_delay(3000, 5000)
 
-        human_delay(700, 1200)
+        human_delay(3000, 5000)
         from .steps import click_next
         click_next(page)
-        human_delay(1500, 2500)
+        human_delay(3000, 5000)
 
         maybe_fill_basic_info(page)
-        human_delay(1200, 2000)
+        human_delay(3000, 5000)
         # Try username page, but if recommendation screen appears, select first and adopt it
         maybe_fill_username_page(page, cfg.get("username", ""))
         try:
@@ -262,7 +246,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
                 cfg["username"] = chosen_local
         except Exception:
             pass
-        human_delay(1200, 2000)
+        human_delay(3000, 5000)
         maybe_fill_password_page(page, cfg.get("password", ""))
 
         # Poll briefly for verification block; if found, return to close

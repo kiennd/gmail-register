@@ -1,0 +1,2085 @@
+{
+  "config": {
+      "name": "Hello 1041331913",
+      "version": 139,
+      "os": "win",
+      "browser": "chrome",
+      "fingerprint": {
+          "navigator": {
+              "hardwareConcurrency": 8,
+              "oscpu": null,
+              "buildID": null,
+              "doNotTrack": "on",
+              "maxTouchPoints": 0,
+              "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:19.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.6 Safari/537.36",
+              "userAgentTemplate": "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.6 Safari/537.36",
+              "platform": "Win32",
+              "osVersion": "Windows NT 10.0; Win64; x64; rv:19.0.0",
+              "browserVersion": "139.0.7258.6",
+              "browserVersionTemplate": "139.0.7258.6",
+              "browserVersionName": "139.0.7258.6",
+              "sourceVersion": "139.0.0.0",
+              "device": "",
+              "browser": "chrome",
+              "deviceMemory": 8,
+              "userAgentStatus": true
+          },
+          "screen": {
+              "width": 2880,
+              "height": 1800,
+              "pixelRatio": 2
+          },
+          "proxy": {
+              "IsProxy": true,
+              "checkBeforeStart": true
+          },
+          "webgl2": {
+              "canvas": "perfect",
+              "audioContext": {
+                  "enable": true,
+                  "noiseValue": null
+              },
+              "WebGLImage": true,
+              "WebGLMeta": true,
+              "clientRectsEnable": true,
+              "unmaskedVendor": "Google Inc. (AMD)",
+              "unmaskedRenderer": "ANGLE (AMD, AMD Radeon R7 200 Series (0x00006611) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+              "extensions": [],
+              "extensions_extra": [],
+              "supportedFunctions": [],
+              "params": [],
+              "antialiasing": true,
+              "ClientRectsNoice": null,
+              "WebglNoiseValue": null
+          },
+          "languages": {
+              "acceptLanguage": "vi-VN"
+          },
+          "timezone": {
+              "isProxy": true,
+              "nameTimezone": "Asia/Ho_Chi_Minh"
+          },
+          "webrtc": {
+              "fill_based_on_ip": true,
+              "localIps": "192.168.238.154",
+              "local_ip_masking": true,
+              "mode": "public",
+              "publicIP": "2405:4802:7057:48e0:84b:b59a:4ff5:9502",
+              "public_ip": "2405:4802:7057:48e0:84b:b59a:4ff5:9502"
+          },
+          "mediaDevices": {
+              "enableMasking": true,
+              "enable": true,
+              "videoInputs": 1,
+              "audioInputs": 1,
+              "audioOutputs": 1,
+              "uid": [],
+              "devicesInfo": {
+                  "videoInputs": [
+                      {
+                          "id": "63990c2cbb59a5636d343730a5f98380f81b2d647d5cb866684524ea164f430b",
+                          "group": "fd4c23f3f5e31afcf66b1cb337fe5b58afc5d11a26c0cffb9a8fba4ff19bcb96",
+                          "label": "Built-in Camera"
+                      }
+                  ],
+                  "audioInputs": [
+                      {
+                          "id": "d7031aa149ff22029966ff2997e49a8b1506cc8c6aac0334dd9fbd900b3c4adc",
+                          "group": "1beca6107dc4652ed441cafa5e07fc7f359963588e24d3f6fe77dcb44b9482e4",
+                          "label": "Headphones"
+                      }
+                  ],
+                  "audioOutputs": [
+                      {
+                          "id": "f46f25e78af36804ebdc394d189ada998685a6dee3220fd34f39e15d887f152d",
+                          "group": "16ac90c77b2b4b1fdf92bf80c9a73662da5fb07302c4532a84ae06fa66edd90b",
+                          "label": "Headphones"
+                      }
+                  ]
+              }
+          },
+          "geoLocation": {
+              "isProxy": true,
+              "mode": "prompt",
+              "latitude": 16.06778,
+              "longitude": 108.22083,
+              "accuracy": 100
+          },
+          "dns": {
+              "mode": "automatic",
+              "type": "custom",
+              "value": null
+          },
+          "plugins": {
+              "isEnabled": true,
+              "value": [],
+              "all_enable": true,
+              "flash_enable": true
+          },
+          "storage": null,
+          "StartURL": "http://192.168.100.100:5555/changeipv6/?port=11001&apikey=2222",
+          "Uid": null,
+          "CanvasModel": null,
+          "extension": null,
+          "enableBookmark": false,
+          "enableAutofill": false,
+          "disableImage": true,
+          "restoreSession": true,
+          "type_device": "",
+          "architecture": "x64",
+          "replaceBatteryState": false,
+          "computerName": {
+              "isEnabled": true,
+              "value": "DESKTOP-72PEFN8"
+          },
+          "macAddress": {
+              "isEnabled": true,
+              "value": "BC:AE:C5:D4:61:AD"
+          },
+          "experiment": "Default",
+          "autoFillUserAgent": true,
+          "fillLanguagesBaseIp": false,
+          "hidemiumBluetooth": true,
+          "sslFingerprintSettings": {
+              "isEnabled": true,
+              "sslVersionMin": 1,
+              "sslVersionMax": 1.3,
+              "cipherSuites": [
+                  "TLS_AES_128_GCM_SHA256",
+                  "TLS_AES_256_GCM_SHA384",
+                  "TLS_CHACHA20_POLY1305_SHA256",
+                  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                  "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                  "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+                  "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                  "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                  "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                  "TLS_RSA_WITH_AES_256_GCM_SHA384",
+                  "TLS_RSA_WITH_AES_128_CBC_SHA",
+                  "TLS_RSA_WITH_AES_256_CBC_SHA"
+              ]
+          },
+          "fonts": {
+              "isEnabled": true,
+              "value": [
+                  {
+                      "name": "-apple-system",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Agency FB",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Algerian",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial Black",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Arial Narrow",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bahnschrift",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bahnschrift Light",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bahnschrift SemiBold",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bauhaus 93",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bell MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Berlin Sans FB",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bernard MT Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Blackadder ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "BlinkMacSystemFont",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bodoni MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bodoni MT Black",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bodoni MT Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Book Antiqua",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bookman Old Style",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bookshelf Symbol 7",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Bradley Hand ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Broadway",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Brush Script MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calibri Light Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Californian FB",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Calisto MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Cambria",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Cambria Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Cambria Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Cambria Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Cambria Math",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Candara Light Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Castellar",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Centaur",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Century",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Century Gothic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Century Schoolbook",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Chiller",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Colonna MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Comic Sans MS Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Comic Sans MS Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Comic Sans MS Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Consolas",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Consolas Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Consolas Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Consolas Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Constantia",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Constantia Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Constantia Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Constantia Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Copperplate Gothic",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Copperplate Gothic Light",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Corbel Light Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Courier",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Courier New",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Courier New Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Courier New Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Courier New Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Curlz MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Ebrima",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Edwardian Script ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Elephant",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Felix Titling",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "FluentSystemIcons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Font Awesome",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Font Awesome 5 Free",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Forte",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Franklin Gothic",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Franklin Gothic Book",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Franklin Gothic Heavy",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Franklin Gothic Medium",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Franklin Gothic Medium Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Freestyle Script",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gabriola",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gadugi",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gadugi Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Garamond",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Georgia",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Georgia Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Georgia Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Georgia Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gigi",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gill Sans MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Gill Sans MT Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Google Material Icons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Google Symbols",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Goudy Old Style",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Goudy Stout",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Haettenschweiler",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Harrington",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Helvetica",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Helvetica Neue",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "High Tower Text",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "HoloLens MDL2 Assets",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Imprint MT Shadow",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Informal Roman",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Ink Free",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Javanese Text",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Jokerman",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Juice ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Kristen ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Kunstler Script",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Leelawadee",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Leelawadee UI",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Leelawadee UI Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Leelawadee UI Semilight",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Bright",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Bright Demibold",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Calligraphy",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Fax",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Fax Regular",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Handwriting",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Sans Regular",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Sans Typewriter Regular",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Lucida Sans Unicode",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Gothic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Outlook",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Reference Sans Serif",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Reference Specialty",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Sans Serif",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS Serif",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MS UI Gothic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MT Extra",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MV Boli",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MWF-FLUENT-ICONS",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MWF-MDL2",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Maiandra GD",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Malgun Gothic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Malgun Gothic Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Malgun Gothic Semilight",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Marlett",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Material Icons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Material Icons Extended",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Material Icons Outlined",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Matura MT Script Capitals",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft Himalaya",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei Regular",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei UI",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei UI Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei UI Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft JhengHei UI Regular",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft New Tai Lue",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft PhagsPa",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft PhagsPa Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft Sans Serif",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft Tai Le",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft Tai Le Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft YaHei",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft YaHei Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft YaHei UI",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft YaHei UI Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft YaHei UI Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Microsoft Yi Baiti",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MingLiU-ExtB",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "MingLiU_HKSCS-ExtB",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Mistral",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Modern No. 20",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Mongolian Baiti",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Monotype Corsiva",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Myanmar Text",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Myanmar Text Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "NSimSun",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Niagara Engraved",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Niagara Solid",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Nirmala UI",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Nirmala UI Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Nirmala UI Semilight",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Nunito Sans",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Old English Text MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Onyx",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "PMingLiU-ExtB",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "PPUI-Icons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Palace Script MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Palatino Linotype",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Palatino Linotype Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Palatino Linotype Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Palatino Linotype Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Papyrus",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Papyrus Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Parchment",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Perpetua",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Perpetua Titling MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Perpetua Titling MT Light",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Playbill",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Poor Richard",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Poppins",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Pristina",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Ravie",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Roboto",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Rockwell",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Rockwell Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe MDL2 Assets",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe Print Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe Script",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe Script Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Black",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Black Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Emoji",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Historic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Light Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Semibold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Semibold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Semilight",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Semilight Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Symbol",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Segoe UI Web (West European)",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Shifter",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Showcard Gothic",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "SimSun",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "SimSun-ExtB",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Banner",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Banner Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Banner Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Banner Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Display",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Display Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Display Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Display Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Heading",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Heading Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Heading Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Heading Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Small",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Small Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Small Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Small Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Subheading",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Subheading Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Subheading Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Text",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Text Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Text Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sitka Text Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Snap ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Stencil",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Sylfaen",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Symbol",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Tahoma",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Tahoma Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Tempus Sans ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Times",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Times New Roman",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Times New Roman Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Times New Roman Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Times New Roman Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Trebuchet MS",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Trebuchet MS Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Trebuchet MS Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Trebuchet MS Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Tw Cen MT",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Tw Cen MT Condensed",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Verdana",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Verdana Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Verdana Bold Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Verdana Italic",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Viner Hand ITC",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Vivaldi",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Vladimir Script",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Webdings",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Wide Latin",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Wingdings",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Wingdings 2",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Wingdings 3",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Work Sans",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic Medium",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic Regular",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI Bold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI Light",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI Regular",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI Semibold",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "Yu Gothic UI Semilight",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "controlIcons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "inherit",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "monospace",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "sans-serif",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "ui-icons",
+                      "required": 1,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "宋体",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "微软雅黑",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "ＭＳ ゴシック",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  },
+                  {
+                      "name": "ＭＳ Ｐゴシック",
+                      "required": 0,
+                      "isChecked": 1,
+                      "os": "win"
+                  }
+              ]
+          },
+          "ports": {
+              "isEnabled": true,
+              "portsToProtect": "2112, 3389, 5800, 5900, 5901, 5902, 5903, 5927, 5931, 5938, 5939, 5944, 5950, 6039, 6040, 6333, 6568, 7070"
+          },
+          "enableSwiftShader": false,
+          "enableWebGL2": true,
+          "effectiveType": "",
+          "disableWebsiteClipboardAccess": "allow",
+          "disableAutofillPopup": true,
+          "syncGoogle": false,
+          "hidemiumHideProfilename": true,
+          "akamaiBypassDns": true,
+          "configHeaderRequest": [],
+          "configRedirectUrl": [],
+          "blockUrl": []
+      },
+      "browser_type": 3
+  },
+  "proxy_optimize_id": null,
+  "is_lock_session": false,
+  "proxy": {
+      "uuid": "",
+      "ip": "192.168.100.100",
+      "user": "",
+      "port": "11001",
+      "pass": "",
+      "type": "SOCKS5",
+      "country": "",
+      "note": "",
+      "created_at": "",
+      "details": {
+          "ip": "",
+          "asn": {
+              "asn": "",
+              "name": "",
+              "type": "",
+              "route": "",
+              "domain": ""
+          },
+          "loc": "",
+          "org": "",
+          "city": "",
+          "postal": "",
+          "region": "",
+          "country": "",
+          "hostname": "",
+          "timezone": ""
+      },
+      "info": {
+          "session": "cb7840eb13cc443191b1f97bbffefe58"
+      },
+      "status": "NEW",
+      "proxy_config_id": "",
+      "is_proxy_free": "",
+      "is_private": ""
+  },
+  "folder_id": "none",
+  "status_id": "none",
+  "random_value": {
+      "profile_name": "Hello 1041331913"
+  }
+}

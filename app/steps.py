@@ -3,7 +3,7 @@ import re
 import random
 from typing import Optional
 
-from .human_actions import human_delay, fill_first_present_slowly, fill_slowly, type_into_locator_slowly, paste_text_via_clipboard
+from .human_actions import human_delay, fill_first_present_slowly, fill_slowly, paste_text_via_clipboard, human_click
 
 MONTH_LABELS = [
     "January", "February", "March", "April", "May", "June",
@@ -23,22 +23,11 @@ def click_next(page) -> None:
             ]:
                 if selector.count():
                     print(f"[DEBUG] Found Next button with text: {text}")
-                    selector.first.click(); return
+                    human_click(page, selector.first)
+                    return
         except Exception:
             continue
-    # Fallbacks
-    print("[DEBUG] Using fallback button selectors...")
-    for fallback in [
-        page.locator('button[type="submit"]'),
-        page.get_by_role("button")
-    ]:
-        try:
-            if fallback.count():
-                print(f"[DEBUG] Clicked fallback button")
-                fallback.first.click(); return
-        except Exception:
-            continue
-    print("[ERROR] Could not locate any Next/Submit button")
+
     raise RuntimeError("Could not locate a Next/Submit button.")
 
 
@@ -141,7 +130,8 @@ def maybe_choose_recommended_email(page) -> str | None:
                     selected_local = suggested.split("@", 1)[0].strip()
             except Exception:
                 print("[DEBUG] Could not extract suggested email text")
-            first.click(); human_delay(200, 400)
+            human_click(page, first)
+            human_delay(200, 400)
             print("[DEBUG] Selected first radio option via role=radio")
 
         click_next(page); human_delay(600, 900)
@@ -161,7 +151,7 @@ def fill_by_label_if_present(page, field_label: str, value: str) -> bool:
         loc = page.get_by_label(field_label)
         if loc.count() > 0:
             try:
-                return type_into_locator_slowly(loc.first, value)
+                return fill_slowly(page, loc.first, value)
             except Exception:
                 loc.first.fill(value); return True
     except Exception:
@@ -200,7 +190,8 @@ def choose_month(page, month_label: str, month_idx: int) -> bool:
                 try:
                     if opener.count() > 0:
                         print(f"[DEBUG] Found month combobox via '{label}', clicking...")
-                        opener.first.click(); human_delay(100, 200)                        
+                        human_click(page, opener.first)
+                        human_delay(100, 200)                        
                         try:
                             page.keyboard.press("Home")
                             for _ in range(max(0, month_idx - 1)):
@@ -246,7 +237,8 @@ def pick_gender_any(page) -> bool:
         ]:
             if opener.count() > 0:
                 print("[DEBUG] Found gender dropdown, clicking...")
-                opener.first.click(); human_delay(100, 200); opened = True; break
+                human_click(page, opener.first)
+                human_delay(100, 200); opened = True; break
         if not opened:
             print("[DEBUG] No gender dropdown found")
         # Pick first available
@@ -259,7 +251,8 @@ def pick_gender_any(page) -> bool:
                     loc = method(text)
                     if loc.count() > 0:
                         print(f"[DEBUG] Found gender option '{text}' via {method_name}")
-                        loc.first.click(); human_delay(120, 200); return True
+                        human_click(page, loc.first)
+                        human_delay(120, 200); return True
                 except Exception:
                     continue
         # Keyboard fallback
@@ -312,7 +305,7 @@ def maybe_fill_basic_info(page) -> bool:
                     day_field = page.locator(day_sel)
                     if day_field.count() > 0:
                         print(f"[DEBUG] Found day field: {day_sel}")
-                        type_into_locator_slowly(day_field.first, str(day_val))
+                        fill_slowly(page, day_field.first, str(day_val))
                         ok_day = True; break
                 except Exception:
                     continue
@@ -331,7 +324,8 @@ def maybe_fill_basic_info(page) -> bool:
                 year_field = page.get_by_label(year_label_name)
                 if year_field.count() > 0:
                     print(f"[DEBUG] Found year field by label: {year_label_name}")
-                    ok_year = type_into_locator_slowly(year_field.first, str(year_val))
+                    ok_year = fill_slowly(page, year_field.first, str(year_val))
+                    
             except Exception:
                 pass
             if not ok_year:
@@ -387,8 +381,9 @@ def maybe_fill_username_page(page, username: str) -> bool:
                     for label in ["Username", "Tên người dùng"]:
                         try:
                             if page.get_by_label(label).count():
-                                type_into_locator_slowly(page.get_by_label(label).first, attempt_username)
-                                filled = True; break
+                                fill_slowly(page, page.get_by_label(label).first, attempt_username)
+                                filled = True; 
+                                break
                         except Exception:
                             continue
             except Exception as e:
@@ -433,51 +428,22 @@ def maybe_fill_password_page(page, password: str) -> bool:
                 break
             page.wait_for_timeout(300)
 
-        filled_password = filled_confirm = False
-
-        # Try labeled fields
-        if page.get_by_label("Password").count():
+        pw_inputs = page.locator('input[type="password"]').all()
+        if len(pw_inputs) >= 2:
             try:
-                type_into_locator_slowly(page.get_by_label("Password").first, password)
-                filled_password = True; human_delay(400, 700)
-            except Exception:
-                pass
-        if page.get_by_label("Confirm").count():
-            try:
-                confirm_field = page.get_by_label("Confirm").first
-                paste_text_via_clipboard(page, confirm_field, password)
-                filled_confirm = True; human_delay(400, 700)
-            except Exception:
-                pass
-
-        # Try password inputs by type
-        if not filled_password or not filled_confirm:
-            pw_inputs = page.locator('input[type="password"]').all()
-            if len(pw_inputs) >= 2:
+                fill_slowly(page, pw_inputs[0], password)
+                human_delay(2000, 4000)
                 try:
-                    if not filled_password:
-                        type_into_locator_slowly(pw_inputs[0], password)
-                        filled_password = True; human_delay(400, 700)
-                    if not filled_confirm:
-                        try:
-                            paste_text_via_clipboard(page, pw_inputs[1], password)
-                            filled_confirm = True; human_delay(400, 700)
-                        except Exception:
-                            pass
+                    paste_text_via_clipboard(page, pw_inputs[1], password)
+                    human_delay(2000, 4000)
                 except Exception:
                     pass
+            except Exception:
+                pass
 
-        # Final fallbacks
-        if not filled_password:
-            filled_password = fill_first_present_slowly(page, [
-                'input[name="Passwd"]', 'input#passwd', 'input[type="password"]'
-            ], password)
-            human_delay(400, 700)
-
-        if filled_password and filled_confirm:
-            human_delay(800, 1200)
-            click_next(page)
-            return True
-        return filled_password or filled_confirm
+        human_delay(800, 1200)
+        click_next(page)
+        return True
+        # return filled_password or filled_confirm
     except Exception:
         return False
