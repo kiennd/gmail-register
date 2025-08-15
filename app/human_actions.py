@@ -15,21 +15,15 @@ def human_delay(min_ms: int = 500, max_ms: int = 1500) -> None:
     time.sleep(delay)
 
 
-def fill_slowly(page, field, value: str) -> bool:
+def fill_slowly(page, field, value: str, min_delay: float = 0.1, max_delay: float = 0.4) -> bool:
     try:
-
-        # locator = page.locator(selector)
-        # if locator.count() == 0:
-        #     return False
-        # print(f"[DEBUG] Filling slowly: {selector}")
-        # field = locator.first
         human_click(page, field)
         human_delay(500, 1000)
         field.clear()
         human_delay(500, 700)
         for char in value:
             field.type(char)
-            time.sleep(random.uniform(0.3, 0.7))
+            time.sleep(random.uniform(min_delay, max_delay))
         human_delay(200, 400)
         return True
     except Exception:

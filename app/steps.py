@@ -468,7 +468,7 @@ def maybe_fill_password_page(page, password: str) -> bool:
         pw_inputs = page.locator('input[type="password"]').all()
         if len(pw_inputs) >= 2:
             try:
-                fill_slowly(page, pw_inputs[0], password)
+                fill_slowly(page, pw_inputs[0], password, 0.5, 1)
                 human_delay(2000, 4000)
                 try:
                     paste_text_via_clipboard(page, pw_inputs[1], password)
@@ -483,4 +483,37 @@ def maybe_fill_password_page(page, password: str) -> bool:
         return True
         # return filled_password or filled_confirm
     except Exception:
+        return False
+
+
+
+def fill_recovery_email(page, recovery_email: str) -> bool:
+    """Fill recovery email field on the page using fill_slowly"""
+    try:
+        # Try multiple selectors for recovery email field
+        selectors = [
+            'input[aria-label*="recovery"]',
+            'input[aria-label*="khôi phục"]',
+            'input[name*="recovery"]',
+            'input[type="email"]'
+        ]
+        
+        for selector in selectors:
+            try:
+                field = page.locator(selector)
+                if field.count() > 0:
+                    print(f"📝 Found recovery email field: {selector}")
+                    # Fill with recovery email using fill_slowly for human-like typing
+                    fill_slowly(page, field.first, recovery_email, 0.1, 0.3)
+                    print(f"✅ Filled recovery email using fill_slowly: {recovery_email}")
+                    return True
+            except Exception as e:
+                print(f"⚠️ Selector {selector} failed: {e}")
+                continue
+        
+        print("❌ Could not find recovery email field")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Error filling recovery email: {e}")
         return False

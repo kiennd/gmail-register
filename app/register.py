@@ -1,8 +1,10 @@
 import sys
 from typing import Any, Dict, Optional
 
-from .human_actions import fill_slowly, human_delay
+from .human_actions import fill_slowly, human_click, human_delay
 from .steps import (
+    click_next,
+    fill_recovery_email,
     maybe_fill_basic_info,
     maybe_fill_username_page,
     maybe_fill_password_page,
@@ -209,7 +211,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
         except Exception:
             pass
         page.goto(final_url, timeout=90_000)
-        human_delay(3000, 5000)
+        human_delay(1000, 3000)
 
         # Inject mouse tracker
         if client:
@@ -227,7 +229,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
             _bring_to_front(page)
         except Exception:
             pass
-        human_delay(3000, 5000)
+        human_delay(1000, 3000)
         if cfg.get("first_name"):
             try:
                 fill_slowly(page, page.locator('input[name="firstName"]').first, cfg["first_name"])
@@ -239,15 +241,12 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                 fill_slowly(page, page.locator('input[name="lastName"]').first, cfg["last_name"]) 
             except Exception:
                 page.locator('input[name="lastName"]').fill(cfg["last_name"])  # fallback
-        human_delay(3000, 5000)
-
-        human_delay(3000, 5000)
-        from .steps import click_next
+        human_delay(1000, 3000)
         click_next(page)
-        human_delay(3000, 5000)
+        human_delay(1000, 3000)
 
         maybe_fill_basic_info(page)
-        human_delay(3000, 5000)
+        human_delay(1000, 3000)
         # Try username page, but if recommendation screen appears, select first and adopt it
         maybe_fill_username_page(page, cfg.get("username", ""))
         try:
@@ -257,7 +256,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                 cfg["username"] = chosen_local
         except Exception:
             pass
-        human_delay(3000, 5000)
+        human_delay(1000, 3000)
         maybe_fill_password_page(page, cfg.get("password", ""))
 
         # Poll briefly for verification block; if found, return to close
@@ -265,8 +264,41 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
             try:
                 if is_verification_block_page(page):
                     print("Verification block detected (QR/device/phone). Closing.")
-                    human_delay(2000, 5000)
+                    human_delay(1000, 2000)
                     return
+                    
+                # Check if recovery email page appears (success!)
+                if is_recovery_email_page(page):
+                    print("🎉 Recovery email page detected - Registration successful!")
+                    
+                    # Generate recovery email
+                    recovery_email = generate_recovery_email()
+                    print(f"📧 Generated recovery email: {recovery_email}")
+
+                    # Fill recovery email
+                    fill_recovery_email(page, recovery_email)
+                    click_next(page)
+                    # Wait for account review page and click Next again
+                    human_delay(2000, 4000)
+                    
+                # Check if we're on account review page
+                if is_account_review_page(page):
+                    print("📋 Account review page detected, clicking Next again...")
+                    click_next(page)
+                    print("✅ Clicked Next on account review page")
+                    human_delay(2000, 4000)
+                    
+                    # Wait for privacy and terms page, then scroll down and click agree
+                if is_privacy_terms_page(page):
+                    print("📜 Privacy and Terms page detected, scrolling down and clicking agree...")
+                    handle_privacy_terms_page(page)
+                    print("✅ Privacy and Terms completed successfully!")
+                    human_delay(10000, 10000)
+                    write_success_to_file(cfg, recovery_email)
+                    page.wait_for_timeout(1000)
+
+                    return  # Exit successfully after agreeing to terms
+                    
             except Exception:
                 pass
             page.wait_for_timeout(1000)
@@ -281,6 +313,163 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
             print(f"⚠️ Warning: Failed to remove mouse tracker: {e}")
 
         print("Done.")
+
+
+def is_recovery_email_page(page) -> bool:
+    """Check if current page is recovery email page"""
+    try:
+        # Check for recovery email indicators
+        recovery_indicators = [
+            "Thêm email khôi phục",  # Vietnamese
+            "Add recovery email",     # English
+            "recovery email",
+            "email khôi phục",
+            "Địa chỉ email khôi phục"
+        ]
+        
+        for indicator in recovery_indicators:
+            if page.locator(f'text="{indicator}"').count() > 0:
+                return True
+            if page.get_by_role("heading", name=indicator).count() > 0:
+                return True
+        
+        # Check for recovery email input field
+        if page.locator('input[aria-label*="recovery"], input[aria-label*="khôi phục"]').count() > 0:
+            return True
+            
+        return False
+    except Exception:
+        return False
+
+
+def is_account_review_page(page) -> bool:
+    """Check if current page is account review page"""
+    try:
+        # Check for account review indicators
+        review_indicators = [
+            "Xem lại thông tin tài khoản của bạn",  # Vietnamese
+        ]
+        
+        for indicator in review_indicators:
+            if page.locator(f'text="{indicator}"').count() > 0:
+                return True
+            if page.get_by_role("heading", name=indicator).count() > 0:
+                return True
+        
+        # Check for account info display (like email address shown)
+        if page.locator('text="@gmail.com"').count() > 0:
+            return True
+            
+        return False
+    except Exception:
+        return False
+
+
+def is_privacy_terms_page(page) -> bool:
+    """Check if current page is privacy and terms page"""
+    try:
+        # Check for privacy and terms indicators
+        privacy_indicators = [
+            "Quyền riêng tư và Điều khoản",  # Vietnamese
+            "Privacy and Terms",              # English
+            "quyền riêng tư",
+            "privacy",
+            "điều khoản",
+            "terms"
+        ]
+        
+        for indicator in privacy_indicators:
+            if page.locator(f'text="{indicator}"').count() > 0:
+                return True
+            if page.get_by_role("heading", name=indicator).count() > 0:
+                return True
+            
+        return False
+    except Exception:
+        return False
+
+
+def handle_privacy_terms_page(page) -> bool:
+    """Handle privacy and terms page: scroll down and click agree"""
+    try:
+        # Scroll down to the bottom to find the agree button
+        print("📜 Scrolling down to find agree button...")
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        human_delay(1000, 2000)
+        
+        # Look for the agree button
+        agree_selectors = [
+            'text="Tôi đồng ý"',      # Vietnamese
+            'text="I agree"',          # English
+            'button:has-text("Tôi đồng ý")',
+            'button:has-text("I agree")',
+            '[role="button"]:has-text("Tôi đồng ý")',
+            '[role="button"]:has-text("I agree")'
+        ]
+        
+        for selector in agree_selectors:
+            try:
+                agree_button = page.locator(selector)
+                if agree_button.count() > 0:
+                    print(f"✅ Found agree button: {selector}")
+                    human_click(page, agree_button.first)
+                    human_delay(1000, 5000)
+                    print("✅ Clicked agree button successfully!")
+                    return True
+            except Exception:
+                continue
+        
+        print("❌ Could not find agree button")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Error handling privacy and terms page: {e}")
+        return False
+
+
+def generate_recovery_email() -> str:
+    """Generate random recovery email using provided domains"""
+    import random
+    import string
+    
+    domains = [
+        "blondmail.com", "chapsmail.com", "clowmail.com", "dropjar.com",
+        "fivermail.com", "getairmail.com", "getmule.com", "getnada.com",
+        "gimpmail.com", "givmail.com", "guysmail.com", "inboxbear.com",
+        "replyloop.com", "robot-mail.com", "spicysoda.com", "tafmail.com",
+        "temptami.com", "tupmail.com", "vomoto.com"
+    ]
+    
+    # Generate random username (8-12 characters)
+    username_length = random.randint(8, 12)
+    username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=username_length))
+    
+    # Pick random domain
+    domain = random.choice(domains)
+    
+    return f"{username}@{domain}"
+
+
+def write_success_to_file(cfg: Dict[str, Any], recovery_email: str) -> None:
+    """Write successful registration to success.txt file"""
+    try:
+        import os
+        
+        # Get email and password from config
+        username = cfg.get("username", "unknown")
+        password = cfg.get("password", "unknown")
+        
+        # Format: email|pass|recover email
+        line = f"{username}@gmail.com|{password}|{recovery_email}"
+        
+        # Write to success.txt
+        with open("success.txt", "a", encoding="utf-8") as f:
+            f.write(line + "\n")
+        
+        print(f"💾 Success written to file: {line}")
+        
+    except Exception as e:
+        print(f"❌ Error writing to success file: {e}")
 
 
 def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_seconds: int) -> None:
@@ -372,4 +561,4 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
                     page.evaluate("() => window.focus()")
                 except Exception:
                     pass
-            _fill_signup_flow(page, cfg, wait_seconds, None) # Pass None for client in fallback
+            _fill_signup_flow(page, cfg, wait_seconds, None)  # Pass None for client in fallback
