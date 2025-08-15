@@ -84,6 +84,11 @@ class HidemiumClient:
             cmd_parts.append(command)
         if debug_port:
             cmd_parts.append(f"--remote-debugging-port={debug_port}")
+        
+        # Hardcoded Hidemium browser parameters
+        cmd_parts.append("--hidemium-sync")
+        cmd_parts.append("--threadindex=4h")
+        
         if cmd_parts:
             params["command"] = " ".join(cmd_parts)
         if proxy:
@@ -511,3 +516,170 @@ class HidemiumClient:
             
         except Exception as e:
             print(f"Error during cleanup: {e}")
+
+    def inject_mouse_tracker(self, page: Page) -> bool:
+        """
+        Inject JavaScript mouse tracker overlay into Hidemium browser page
+        Hiển thị chấm đỏ trực tiếp trên trang web để theo dõi vị trí chuột
+        
+        Args:
+            page: Playwright page instance connected to Hidemium profile
+            
+        Returns:
+            True if injection successful, False otherwise
+        """
+        try:
+            # JavaScript code để tạo overlay chấm đỏ
+            mouse_tracker_js = """
+            (function() {
+                // Kiểm tra xem đã có overlay chưa
+                if (window.mouseTrackerOverlay) {
+                    console.log('Mouse tracker already exists');
+                    return;
+                }
+                
+                // Tạo overlay container
+                const overlay = document.createElement('div');
+                overlay.id = 'mouseTrackerOverlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 999999;
+                    overflow: hidden;
+                `;
+                
+                // Tạo chấm đỏ
+                const dot = document.createElement('div');
+                dot.id = 'mouseTrackerDot';
+                dot.style.cssText = `
+                    position: absolute;
+                    width: 12px;
+                    height: 12px;
+                    background: red;
+                    border: 2px solid darkred;
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    z-index: 1000000;
+                    box-shadow: 0 0 10px rgba(255,0,0,0.5);
+                    transition: all 0.1s ease;
+                `;
+                
+                // Tạo crosshair lines
+                const horizontalLine = document.createElement('div');
+                horizontalLine.id = 'mouseTrackerHorizontal';
+                horizontalLine.style.cssText = `
+                    position: absolute;
+                    height: 1px;
+                    width: 100%;
+                    background: red;
+                    opacity: 0.5;
+                    pointer-events: none;
+                    z-index: 999999;
+                `;
+                
+                const verticalLine = document.createElement('div');
+                verticalLine.id = 'mouseTrackerVertical';
+                verticalLine.style.cssText = `
+                    position: absolute;
+                    width: 1px;
+                    height: 100%;
+                    background: red;
+                    opacity: 0.5;
+                    pointer-events: none;
+                    z-index: 999999;
+                `;
+                
+                // Thêm vào overlay
+                overlay.appendChild(horizontalLine);
+                overlay.appendChild(verticalLine);
+                overlay.appendChild(dot);
+                
+                // Thêm vào body
+                document.body.appendChild(overlay);
+                
+                // Theo dõi chuột
+                let mouseX = 0, mouseY = 0;
+                
+                document.addEventListener('mousemove', function(e) {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    
+                    // Cập nhật vị trí chấm đỏ
+                    dot.style.left = mouseX + 'px';
+                    dot.style.top = mouseY + 'px';
+                    
+                    // Cập nhật crosshair
+                    horizontalLine.style.top = mouseY + 'px';
+                    verticalLine.style.left = mouseX + 'px';
+                    
+                    // Thêm hiệu ứng trail
+                    dot.style.boxShadow = '0 0 20px rgba(255,0,0,0.8), 0 0 40px rgba(255,0,0,0.4)';
+                    
+                    // Reset hiệu ứng sau 100ms
+                    setTimeout(() => {
+                        dot.style.boxShadow = '0 0 10px rgba(255,0,0,0.5)';
+                    }, 100);
+                });
+                
+                // Theo dõi scroll để cập nhật vị trí
+                window.addEventListener('scroll', function() {
+                    // Cập nhật vị trí chấm đỏ khi scroll
+                    dot.style.left = mouseX + 'px';
+                    dot.style.top = mouseY + 'px';
+                    horizontalLine.style.top = mouseY + 'px';
+                    verticalLine.style.left = mouseX + 'px';
+                });
+                
+                // Lưu reference
+                window.mouseTrackerOverlay = overlay;
+                window.mouseTrackerDot = dot;
+                window.mouseTrackerHorizontal = horizontalLine;
+                window.mouseTrackerVertical = verticalLine;
+                
+                console.log('✅ Mouse tracker overlay injected successfully into Hidemium browser!');
+                console.log('🔴 Red dot will follow your mouse movements');
+            })();
+            """
+            
+            # Inject JavaScript vào page
+            page.evaluate(mouse_tracker_js)
+            print(f"✅ Injected mouse tracker into Hidemium browser: {page.url}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to inject mouse tracker: {e}")
+            return False
+    
+    def remove_mouse_tracker(self, page: Page) -> bool:
+        """
+        Remove mouse tracker overlay from Hidemium browser page
+        
+        Args:
+            page: Playwright page instance
+            
+        Returns:
+            True if removal successful, False otherwise
+        """
+        try:
+            remove_js = """
+            if (window.mouseTrackerOverlay) {
+                window.mouseTrackerOverlay.remove();
+                window.mouseTrackerOverlay = null;
+                window.mouseTrackerDot = null;
+                window.mouseTrackerHorizontal = null;
+                window.mouseTrackerVertical = null;
+                console.log('✅ Mouse tracker overlay removed from Hidemium browser');
+            }
+            """
+            page.evaluate(remove_js)
+            print(f"✅ Removed mouse tracker from Hidemium browser: {page.url}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to remove mouse tracker: {e}")
+            return False

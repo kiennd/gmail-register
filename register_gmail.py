@@ -120,7 +120,7 @@ def main() -> None:
         engine = args.engine
         lang_primary = (args.lang or cfg.get("lang") or "en").split("-")[0]
         open_command = f"--lang={lang_primary} --window-position={x},{y} --window-size={w},{h}"
-
+        # open_command = f"--lang={lang_primary}"
         while not stop_event.is_set():
             # Identity per iteration
             first, last = generate_name()

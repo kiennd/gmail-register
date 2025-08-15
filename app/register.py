@@ -166,7 +166,7 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
         raise
 
 
-def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
+def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: HidemiumClient) -> None:
         # If explicit window_size provided, set viewport accordingly
         size = cfg.get("window_size")
         if size and isinstance(size, tuple):
@@ -209,6 +209,17 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
         except Exception:
             pass
         page.goto(final_url, timeout=90_000)
+        human_delay(3000, 5000)
+
+        # Inject mouse tracker
+        if client:
+            print("🔴 Injecting mouse tracker overlay...")
+            success = client.inject_mouse_tracker(page)
+            if success:
+                print("✅ Mouse tracker injected successfully!")
+                print("🔴 Red dot will follow mouse movements during registration")
+            else:
+                print("⚠️ Failed to inject mouse tracker, continuing without it")
 
         page.wait_for_selector('input[name="firstName"]', timeout=60_000)
         try:
@@ -260,6 +271,15 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int) -> None:
                 pass
             page.wait_for_timeout(1000)
 
+        # Remove mouse tracker when done
+        try:
+            if success:  # Only remove if we successfully injected
+                print("🗑️ Removing mouse tracker overlay...")
+                client.remove_mouse_tracker(page)
+                print("✅ Mouse tracker removed successfully")
+        except Exception as e:
+            print(f"⚠️ Warning: Failed to remove mouse tracker: {e}")
+
         print("Done.")
 
 
@@ -288,7 +308,7 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
             
             # Step 3: Execute registration flow
             print("Executing Gmail registration flow...", flush=True)
-            _fill_signup_flow(page, cfg, wait_seconds)
+            _fill_signup_flow(page, cfg, wait_seconds, client)
             
             print("Registration flow completed successfully!", flush=True)
             
@@ -352,4 +372,4 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
                     page.evaluate("() => window.focus()")
                 except Exception:
                     pass
-            _fill_signup_flow(page, cfg, wait_seconds)
+            _fill_signup_flow(page, cfg, wait_seconds, None) # Pass None for client in fallback

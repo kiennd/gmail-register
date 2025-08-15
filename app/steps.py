@@ -191,20 +191,55 @@ def choose_month(page, month_label: str, month_idx: int) -> bool:
                     if opener.count() > 0:
                         print(f"[DEBUG] Found month combobox via '{label}', clicking...")
                         human_click(page, opener.first)
-                        human_delay(100, 200)                        
+                        human_delay(500, 800)  # Wait longer for dropdown to open
+                        
                         try:
-                            page.keyboard.press("Home")
-                            for _ in range(max(0, month_idx - 1)):
-                                page.keyboard.press("ArrowDown")
-                                human_delay(40, 80)
-                            page.keyboard.press("Enter")
-                            print("[DEBUG] Selected month via keyboard fallback")
-                            return True
-                        except Exception:
+                            # Try multiple approaches to find and select month
+                            
+                            # Approach 1: Try to find month by text content
+                            month_texts = [str(month_idx), month_label, f"{month_idx:02d}"]
+                            for month_text in month_texts:
+                                try:
+                                    month_option = page.locator(f'option:has-text("{month_text}"), option[value="{month_text}"]')
+                                    if month_option.count() > 0:
+                                        print(f"[DEBUG] Found month option by text: {month_text}")
+                                        human_click(page, month_option.first)
+                                        human_delay(200, 400)
+                                        return True
+                                except Exception:
+                                    continue
+                            
+                            # Approach 2: Try to find all options and click by index
+                            print(f"[DEBUG] Trying to find month options by index...")
+                            month_options = page.locator("option")
+                            option_count = month_options.count()
+                            print(f"[DEBUG] Found {option_count} month options")
+                            
+                            if option_count >= month_idx:
+                                target_month = month_options.nth(month_idx - 1)
+                                print(f"[DEBUG] Clicking month option at index {month_idx - 1}")
+                                human_click(page, target_month)
+                                human_delay(200, 400)
+                                return True
+                            
+                            # Approach 3: Try to find by aria-label or role
+                            try:
+                                aria_month = page.locator(f'[role="option"]:has-text("{month_idx}"), [role="option"]:has-text("{month_label}")')
+                                if aria_month.count() > 0:
+                                    print(f"[DEBUG] Found month option by aria-label")
+                                    human_click(page, aria_month.first)
+                                    human_delay(200, 400)
+                                    return True
+                            except Exception:
+                                pass
+                                
+                        except Exception as e:
+                            print(f"[DEBUG] Month selection failed: {e}")
                             pass
                     
                 except Exception:
                     continue
+        
         # Try select element fallbacks
         print("[DEBUG] Trying month select elements...")
         for sel in ['select[name="month"]', 'select#month', 'select[aria-label="Month"]', 'select[aria-label="Tháng"]']:
@@ -217,8 +252,10 @@ def choose_month(page, month_label: str, month_idx: int) -> bool:
                     return True
             except Exception:
                 continue
+        
         print("[DEBUG] Could not select month")
         return False
+        
     except Exception as e:
         print(f"[DEBUG] Error choosing month: {e}")
         return False

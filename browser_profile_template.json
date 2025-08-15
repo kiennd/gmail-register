@@ -1,7 +1,7 @@
 {
   "config": {
       "name": "Hello 1041331913",
-      "version": 139,
+      "version": 138,
       "os": "win",
       "browser": "chrome",
       "fingerprint": {
@@ -123,7 +123,7 @@
           "extension": null,
           "enableBookmark": false,
           "enableAutofill": false,
-          "disableImage": true,
+          "disableImage": false,
           "restoreSession": true,
           "type_device": "",
           "architecture": "x64",
