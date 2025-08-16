@@ -134,7 +134,8 @@ def maybe_choose_recommended_email(page) -> str | None:
             human_delay(200, 400)
             print("[DEBUG] Selected first radio option via role=radio")
 
-        click_next(page); human_delay(600, 900)
+        click_next(page); 
+        human_delay(600, 900)
 
         if selected_local:
             print(f"[DEBUG] Using selected local part: {selected_local}")
@@ -349,14 +350,11 @@ def maybe_fill_basic_info(page) -> bool:
             print(f"[DEBUG] Filling year: {year_val}")
             ok_year = False
             year_label_name = first_present_label(page, ["Year", "Năm"]) or "Year"
-            try:
-                year_field = page.get_by_label(year_label_name)
-                if year_field.count() > 0:
-                    print(f"[DEBUG] Found year field by label: {year_label_name}")
-                    ok_year = fill_slowly(page, year_field.first, str(year_val))
+            year_field = page.get_by_label(year_label_name)
+            if year_field.count() > 0:
+                print(f"[DEBUG] Found year field by label: {year_label_name}")
+                ok_year = fill_slowly(page, year_field.first, str(year_val))
                     
-            except Exception:
-                pass
             if not ok_year:
                 print("[DEBUG] Trying year field fallback...")
                 ok_year = fill_by_label_if_present(page, year_label_name, str(year_val)) or True
@@ -376,6 +374,8 @@ def maybe_fill_basic_info(page) -> bool:
 
         human_delay(800, 1200)
         click_next(page)
+        human_delay(2000, 4000)
+
         print("[DEBUG] Basic info page completed")
         return True
     except Exception as e:
@@ -420,8 +420,7 @@ def maybe_fill_username_page(page, username: str) -> bool:
 
             human_delay(600, 1000)
             click_next(page)
-            page.wait_for_timeout(1200)
-
+            human_delay(200, 3000)
             taken = False
             try:
                 if (page.locator('text="That username is taken"').count() or
@@ -476,6 +475,7 @@ def maybe_fill_password_page(page, password: str) -> bool:
 
         human_delay(800, 1200)
         click_next(page)
+        human_delay(2000, 4000)
         return True
         # return filled_password or filled_confirm
     except Exception:
