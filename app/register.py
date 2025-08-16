@@ -211,17 +211,23 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], client: HidemiumClient) -> None
                 if not is_finished_fill_basic_info:
                     is_finished_fill_basic_info = maybe_fill_basic_info(page)
 
+
+                chosen_local = maybe_choose_recommended_email(page)
+                if chosen_local:
+                    # Update cfg username to the recommended email local-part for downstream use
+                    cfg["username"] = chosen_local
+                    
+
                 if not is_finished_fill_username:
                     is_finished_fill_username = maybe_fill_username_page(page, cfg.get("username", ""))
 
                 if not is_finished_fill_password:
                     is_finished_fill_password = maybe_fill_password_page(page, cfg.get("password", ""))
 
-                chosen_local = maybe_choose_recommended_email(page)
-                if chosen_local:
-                    # Update cfg username to the recommended email local-part for downstream use
-                    cfg["username"] = chosen_local
-
+                if is_verification_block_page(page):
+                    print("Verification block detected (QR/device/phone). Closing.")
+                    human_delay(1000, 1000)
+                    return
 
                 if not is_finished_fill_recovery_email:
                     is_finished_fill_recovery_email = maybe_fill_recovery_email(page, recovery_email)
@@ -238,10 +244,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], client: HidemiumClient) -> None
                     return  # Exit successfully after agreeing to terms
 
                 
-                if is_verification_block_page(page):
-                    print("Verification block detected (QR/device/phone). Closing.")
-                    human_delay(1000, 1000)
-                    return
+
                 
             except Exception:
                 pass
