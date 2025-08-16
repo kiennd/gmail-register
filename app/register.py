@@ -12,6 +12,7 @@ from .steps import (
     maybe_choose_recommended_email,
 )
 from .hidemium_client import HidemiumClient
+from .steps import _bring_to_front
 
 # Keep Camoufox import as fallback
 try:
@@ -182,7 +183,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
 
         print("Opening Google sign-up...", flush=True)
         try:
-            from .steps import _bring_to_front
+
             _bring_to_front(page)
         except Exception:
             pass
@@ -194,7 +195,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
         except Exception:
             pass
         try:
-            from .steps import _bring_to_front
+
             _bring_to_front(page)
         except Exception:
             pass
@@ -211,8 +212,6 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
         except Exception:
             pass
         page.goto(final_url, timeout=90_000)
-        human_delay(1000, 3000)
-
         # Inject mouse tracker
         if client:
             print("🔴 Injecting mouse tracker overlay...")
@@ -224,12 +223,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                 print("⚠️ Failed to inject mouse tracker, continuing without it")
 
         page.wait_for_selector('input[name="firstName"]', timeout=60_000)
-        try:
-            from .steps import _bring_to_front
-            _bring_to_front(page)
-        except Exception:
-            pass
-        human_delay(1000, 3000)
+        human_delay(1000, 2000)
         if cfg.get("first_name"):
             try:
                 fill_slowly(page, page.locator('input[name="firstName"]').first, cfg["first_name"])
@@ -241,12 +235,12 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                 fill_slowly(page, page.locator('input[name="lastName"]').first, cfg["last_name"]) 
             except Exception:
                 page.locator('input[name="lastName"]').fill(cfg["last_name"])  # fallback
-        human_delay(1000, 3000)
+        human_delay(1000, 2000)
         click_next(page)
-        human_delay(1000, 3000)
+        human_delay(1000, 2000)
 
         maybe_fill_basic_info(page)
-        human_delay(1000, 3000)
+        human_delay(1000, 2000)
         # Try username page, but if recommendation screen appears, select first and adopt it
         maybe_fill_username_page(page, cfg.get("username", ""))
         try:
@@ -256,7 +250,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                 cfg["username"] = chosen_local
         except Exception:
             pass
-        human_delay(1000, 3000)
+        human_delay(1000, 2000)
         maybe_fill_password_page(page, cfg.get("password", ""))
 
         # Poll briefly for verification block; if found, return to close
@@ -293,7 +287,8 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
                     print("📜 Privacy and Terms page detected, scrolling down and clicking agree...")
                     handle_privacy_terms_page(page)
                     print("✅ Privacy and Terms completed successfully!")
-                    human_delay(10000, 10000)
+                    
+                    
                     write_success_to_file(cfg, recovery_email)
                     page.wait_for_timeout(1000)
 
@@ -414,6 +409,24 @@ def handle_privacy_terms_page(page) -> bool:
                     print(f"✅ Found agree button: {selector}")
                     human_click(page, agree_button.first)
                     human_delay(1000, 5000)
+                    # Wait for redirect to mail.google.com after successful registration
+                    print("⏳ Waiting for redirect to Gmail...")
+                    try:
+                        # Wait for URL to change to mail.google.com (max 30 seconds)
+                        page.wait_for_function(
+                            "() => window.location.href.includes('mail.google.com')",
+                            timeout=60000
+                        )
+                        print("✅ Successfully redirected to Gmail!")
+                    except Exception as e:
+                        print(f"⚠️ Warning: Redirect timeout or error: {e}")
+                        # Fallback: wait a bit more and check if we're on Gmail
+                        human_delay(5000, 5000)
+                        if "mail.google.com" in page.url:
+                            print("✅ Confirmed on Gmail page")
+                        else:
+                            print(f"⚠️ Current URL: {page.url}")
+
                     print("✅ Clicked agree button successfully!")
                     return True
             except Exception:

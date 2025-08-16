@@ -15,12 +15,12 @@ def human_delay(min_ms: int = 500, max_ms: int = 1500) -> None:
     time.sleep(delay)
 
 
-def fill_slowly(page, field, value: str, min_delay: float = 0.1, max_delay: float = 0.4) -> bool:
+def fill_slowly(page, field, value: str, min_delay: float = 0.1, max_delay: float = 0.2) -> bool:
     try:
         human_click(page, field)
-        human_delay(500, 1000)
+        human_delay(200, 700)
         field.clear()
-        human_delay(500, 700)
+        human_delay(200, 700)
         for char in value:
             field.type(char)
             time.sleep(random.uniform(min_delay, max_delay))
@@ -120,7 +120,7 @@ def human_click(page, locator_or_element, min_delay: int = 200, max_delay: int =
             page.mouse.move(x, y)
             
             # Shorter, more consistent delays for smoother movement
-            delay = random.uniform(3, 12)
+            delay = random.uniform(2, 5)
             page.wait_for_timeout(delay)
         
         # Small pause before clicking (like human aiming and preparation)
