@@ -34,6 +34,7 @@ def load_config_from_file(path: str) -> Dict[str, Any]:
     raw["USER_DATA_DIR"] = interpolate_vars(raw.get("USER_DATA_DIR"), raw)
 
     cfg: Dict[str, Any] = {
+        "engine": raw.get("ENGINE", "hidemium").lower(),
         "camoufox_os": (raw.get("CAMOUFOX_OS") or "windows").strip().lower(),
         "camoufox_config": raw.get("CAMOUFOX_CONFIG") or None,
         "headless": raw.get("HEADLESS", False),
@@ -45,5 +46,19 @@ def load_config_from_file(path: str) -> Dict[str, Any]:
         "camoufox_args": raw.get("CAMOUFOX_ARGS") or None,
         # UI language
         "lang": raw.get("LANG") or None,
+        # Hidemium options
+        "hidemium_api_url": raw.get("HIDEMIUM_API_URL", "http://localhost:2222"),
+        "hidemium_os": raw.get("HIDEMIUM_OS", "win"),
+        "hidemium_local_profile": parse_bool(raw.get("HIDEMIUM_LOCAL_PROFILE"), False),
+        "hidemium_custom_config": raw.get("HIDEMIUM_CUSTOM_CONFIG", {}),
+        # GoLogin options
+        "gologin_access_token": raw.get("GOLOGIN_ACCESS_TOKEN", ""),
+        "gologin_api_url": raw.get("GOLOGIN_API_URL", "https://api.gologin.com"),
+        "gologin_os": raw.get("GOLOGIN_OS", "win"),
+        "gologin_local_profile": parse_bool(raw.get("GOLOGIN_LOCAL_PROFILE"), False),
+        "gologin_custom_config": raw.get("GOLOGIN_CUSTOM_CONFIG", {}),
+        # Proxy options
+        "proxy": raw.get("PROXY"),
+        "proxy_scheme": raw.get("PROXY_SCHEME", "http"),
     }
     return cfg 

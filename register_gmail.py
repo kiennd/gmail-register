@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional, Tuple
 import requests
 
 from app.config_loader import load_config_from_file
-from app.register import build_camoufox_kwargs, register_flow, create_temp_hidemium_profile
+from app.register import build_camoufox_kwargs, register_flow, create_temp_hidemium_profile, create_temp_gologin_profile
 from app.generator import generate_name, generate_username, generate_password, ensure_password_has_special
 
 
@@ -78,7 +78,7 @@ def main() -> None:
     cfg = load_config_from_file(args_pre.config_path)
 
     # Minimal CLI overrides to support tiling and per-run profiles
-    parser.add_argument("--engine", choices=["camoufox", "hidemium"], default=cfg.get("engine", "hidemium"))
+    parser.add_argument("--engine", choices=["camoufox", "hidemium", "gologin"], default=cfg.get("engine", "hidemium"))
     parser.add_argument("--lang", dest="lang", default=cfg.get("lang"))
     parser.add_argument("--wait", dest="wait_seconds", type=int, default=int(cfg.get("wait_seconds", 30)))
     parser.add_argument("--headless", dest="headless", default=None, help="true|false|virtual")
@@ -162,7 +162,16 @@ def main() -> None:
                 except Exception as e:
                     print(f"[t{thread_id}] Failed to create temporary Hidemium profile: {e}")
                     continue
-            else:
+            elif engine == "gologin":
+                print(f"[t{thread_id}] Creating temporary GoLogin profile...")
+                try:
+                    profile_id = create_temp_gologin_profile(effective_cfg, proxy)
+                    engine_kwargs = {"profile_id": profile_id, "port": None}
+                    print(f"[t{thread_id}] Created temporary GoLogin profile: {profile_id}")
+                except Exception as e:
+                    print(f"[t{thread_id}] Failed to create temporary GoLogin profile: {e}")
+                    continue
+            else:  # camoufox
                 engine_kwargs = build_camoufox_kwargs(
                     effective_cfg,
                     proxy=proxy,

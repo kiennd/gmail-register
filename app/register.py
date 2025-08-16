@@ -12,6 +12,7 @@ from .steps import (
     maybe_choose_recommended_email,
 )
 from .hidemium_client import HidemiumClient
+from .gologin_client import GoLoginClient
 from .steps import _bring_to_front
 
 # Keep Camoufox import as fallback
@@ -111,8 +112,19 @@ def build_camoufox_kwargs(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]], 
 
 
 def build_hidemium_client(cfg: Dict[str, Any]) -> HidemiumClient:
-    """Build Hidemium API client with fixed defaults (localhost:2222, no token)."""
-    return HidemiumClient()
+    """Build Hidemium API client with configuration."""
+    api_url = cfg.get("hidemium_api_url", "http://localhost:2222")
+    api_token = cfg.get("hidemium_api_token")
+    return HidemiumClient(base_url=api_url, api_token=api_token)
+
+
+def build_gologin_client(cfg: Dict[str, Any]) -> GoLoginClient:
+    """Build GoLogin API client with configuration."""
+    access_token = cfg.get("gologin_access_token")
+    if not access_token:
+        raise ValueError("GoLogin access token is required")
+    api_url = cfg.get("gologin_api_url", "https://api.gologin.com")
+    return GoLoginClient(access_token=access_token, base_url=api_url)
 
 
 def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]]) -> str:
@@ -162,10 +174,77 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
         except Exception as e:
             print(f"Warning: Failed to update fingerprint: {e}")
         return profile_uuid
-        # return "local-c34620b3-3ccb-4fdc-951f-cf08513b6143"
         
     except Exception as e:
         print(f"Failed to create temporary profile: {e}")
+        raise
+
+
+def create_temp_gologin_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]]) -> str:
+    """Create a temporary GoLogin profile with proxy configuration"""
+    import uuid
+    import time
+    
+    client = build_gologin_client(cfg)
+    
+    # Generate unique profile name for one-time use
+    timestamp = int(time.time())
+    username = cfg.get("username", "gmail_register")
+    profile_name = f"temp_{username}_{timestamp}_{uuid.uuid4().hex[:8]}"
+    
+    print(f"Creating temporary GoLogin profile: {profile_name}")
+    
+    # Determine OS and language from config
+    os_type = cfg.get("gologin_os", "win")
+    language = cfg.get("lang", "en-US")
+    if language == "vi":
+        language = "vi-VN"
+    elif language == "en":
+        language = "en-US"
+    
+    # Build complete profile configuration
+    try:
+        # Create profile using custom API with full configuration
+        print(f"Creating GoLogin profile with custom configuration...")
+        
+        # Build proxy configuration if provided
+        proxy_config = None
+        if proxy and proxy.get("server"):
+            proxy_config = {
+                "server": proxy.get("server"),
+                "username": proxy.get("username"),
+                "password": proxy.get("password"),
+                "scheme": proxy.get("scheme", "http")
+            }
+        
+        # Build profile configuration
+        profile_config = client.build_default_profile_config(
+            name=profile_name,
+            proxy=proxy_config,
+            os_type=os_type,
+            language=language
+        )
+        
+        # Merge with custom config if provided
+        custom_config = cfg.get("gologin_custom_config", {})
+        if custom_config:
+            profile_config.update(custom_config)
+        
+        response = client.create_profile_custom(profile_config)
+        
+        # Extract profile ID from response
+        profile_id = None
+        if isinstance(response, dict):
+            profile_id = response.get("id")
+        
+        if not profile_id:
+            raise ValueError(f"Profile creation failed: {response}")
+            
+        print(f"Created temporary GoLogin profile with ID: {profile_id}")
+        return profile_id
+        
+    except Exception as e:
+        print(f"Failed to create temporary GoLogin profile: {e}")
         raise
 
 
@@ -542,6 +621,62 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
                                 if profile_uuid:
                                     client.delete_profile(profile_uuid)
                                     print(f"Force deleted profile: {profile_uuid}")
+                        except Exception:
+                            pass
+    
+    elif engine == "gologin":
+        print("Starting GoLogin registration flow...", flush=True)
+        client = None
+        page = None
+        
+        try:
+            # Step 1: Create temporary profile
+            client = build_gologin_client(cfg)
+            profile_id = engine_kwargs.get("profile_id")
+            
+            if not profile_id:
+                raise ValueError("GoLogin profile ID not provided")
+            
+            # Step 2: Launch profile and connect
+            print("Launching GoLogin profile for registration...", flush=True)
+            # Pass through port for profile start
+            port = engine_kwargs.get("port")
+            page = client.connect_to_profile(profile_id, port=port)
+            
+            # Step 3: Execute registration flow
+            print("Executing Gmail registration flow...", flush=True)
+            _fill_signup_flow(page, cfg, wait_seconds, client)
+            
+            print("Registration flow completed successfully!", flush=True)
+            
+        except Exception as e:
+            print(f"GoLogin registration failed: {e}")
+            raise
+            
+        finally:
+            # Step 4: Cleanup and optionally delete temporary profile
+            if page and client:
+                try:
+                    # Check if profile deletion is enabled (default: True for temp profiles)
+                    delete_profile = cfg.get("gologin_delete_profile", True)
+                    
+                    if delete_profile:
+                        print("Cleaning up and deleting temporary profile...", flush=True)
+                    else:
+                        print("Cleaning up profile (keeping for reuse)...", flush=True)
+                    
+                    client.cleanup_page(page, delete_profile=delete_profile)
+                    
+                except Exception as e:
+                    print(f"Warning: Failed to cleanup profile: {e}")
+                    # Try to delete profile even if cleanup failed (only if deletion was requested)
+                    if cfg.get("gologin_delete_profile", True):
+                        try:
+                            if hasattr(page, '_gologin_cleanup'):
+                                profile_id = page._gologin_cleanup.get('profile_id')
+                                if profile_id:
+                                    client.delete_profile(profile_id)
+                                    print(f"Force deleted profile: {profile_id}")
                         except Exception:
                             pass
     
