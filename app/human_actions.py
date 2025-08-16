@@ -15,12 +15,12 @@ def human_delay(min_ms: int = 500, max_ms: int = 1500) -> None:
     time.sleep(delay)
 
 
-def fill_slowly(page, field, value: str, min_delay: float = 0.2, max_delay: float = 0.4) -> bool:
+def fill_slowly(page, field, value: str, min_delay: float = 0.1, max_delay: float = 0.4) -> bool:
     try:
         human_click(page, field)
-        human_delay(200, 700)
+        human_delay(500, 1000)
         field.clear()
-        human_delay(200, 700)
+        human_delay(500, 1000)
         for char in value:
             field.type(char)
             time.sleep(random.uniform(min_delay, max_delay))

@@ -31,6 +31,21 @@ def click_next(page) -> None:
     raise RuntimeError("Could not locate a Next/Submit button.")
 
 
+def check_page_by_title(page, block_texts: [str]) -> bool:
+
+    for text in block_texts:
+        if page.locator(f'text="{text}"').count() > 0:
+            print(f"[DEBUG] Found verification block text: {text}")
+            return True
+    
+    for indicator in block_texts:
+        if page.locator(f'text="{indicator}"').count() > 0:
+            return True
+        if page.get_by_role("heading", name=indicator).count() > 0:
+            return True
+
+    return False
+
 def is_verification_block_page(page) -> bool:
     print("[DEBUG] Checking for verification block page...")
     block_texts = [
@@ -80,24 +95,9 @@ def maybe_choose_recommended_email(page) -> str | None:
         headings = ["Choose your Gmail address", "Chọn địa chỉ Gmail của bạn"]
         detected = False
         for _ in range(10):
-            for h in headings:
-                if page.get_by_role("heading", name=h).count():
-                    print(f"[DEBUG] Found email recommendation page with heading: {h}")
-                    detected = True; break
+            detected = check_page_by_title(page, headings)
             if detected: break
-            page.wait_for_timeout(200)
-        if not detected:
-            # Heuristic: presence of usernameRadio inputs indicates recommendation screen
-            try:
-                if page.locator('input[name="usernameRadio"]').count() > 0:
-                    print("[DEBUG] Heuristic: Found usernameRadio inputs; assuming recommendation page")
-                    detected = True
-            except Exception:
-                pass
-        if not detected:
-            print("[DEBUG] No email recommendation page detected")
-            return None
-
+            page.wait_for_timeout(100)
         # Prefer direct input[name="usernameRadio"] and skip the 'custom' option
         selected_local = None
         try:
@@ -301,12 +301,15 @@ def maybe_fill_basic_info(page) -> bool:
     try:
         # Wait for page
         print("[DEBUG] Waiting for basic info page to load...")
+        headings = ["Basic information", "Thông tin cơ bản"]
+        detected = False
         for _ in range(10):
-            if (page.get_by_label("Month").count() or page.get_by_label("Tháng").count() or
-                page.get_by_role("heading", name="Basic information").count()):
-                print("[DEBUG] Basic info page detected")
-                break
-            page.wait_for_timeout(300)
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
+
+        if not detected:
+            return False
 
         # Generate data
         today = date.today()
@@ -383,17 +386,17 @@ def maybe_fill_basic_info(page) -> bool:
 def maybe_fill_username_page(page, username: str) -> bool:
     print("[DEBUG] Filling username page...")
     try:
+        # headings = ["Chọn địa chỉ Gmail của bạn", "Chọn địa chỉ Gmail của bạn"]
+        headings = ["How you’ll sign in", "Cách bạn đăng nhập"]
         detected = False
-        for _ in range(20):
-            if (page.get_by_label("Username").count() or
-                page.get_by_label("Tên người dùng").count() or
-                page.get_by_role("heading", name="How you'll sign in").count() or
-                page.get_by_role("heading", name="Cách bạn sẽ đăng nhập").count()):
-                detected = True; break
-            page.wait_for_timeout(250)
+        for _ in range(10):
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
+
         if not detected:
-            print("[DEBUG] Username page not detected")
             return False
+
 
         attempt_username = username
         for attempt in range(4):
@@ -448,11 +451,15 @@ def maybe_fill_username_page(page, username: str) -> bool:
 def maybe_fill_password_page(page, password: str) -> bool:
     try:
         # Wait for password page
+        headings = ["Create a strong password", "Tạo một mật khẩu mạnh"]
+        detected = False
         for _ in range(10):
-            if (page.get_by_label("Password").count() or 
-                page.locator('input[type="password"]').count()):
-                break
-            page.wait_for_timeout(300)
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
+
+        if not detected:
+            return False
 
         pw_inputs = page.locator('input[type="password"]').all()
         if len(pw_inputs) >= 2:
@@ -474,12 +481,48 @@ def maybe_fill_password_page(page, password: str) -> bool:
     except Exception:
         return False
 
+def maybe_fill_name_page(page, first_name: str, last_name: str) -> bool:
+    print("[DEBUG] Filling name page...")
+    try:
+        headings = [
+            "Tạo Tài khoản Google",  # Vietnamese
+            "Create a Google Account"
+        ]
+        detected = False
+        for _ in range(10):
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
 
+        if not detected:
+            return False
+            
+        fill_slowly(page, page.locator('input[name="firstName"]').first, first_name)
+        human_delay(300, 700)
+        fill_slowly(page, page.locator('input[name="lastName"]').first, last_name) 
+        human_delay(1000, 2000)
+        click_next(page)
+        human_delay(2000, 4000)
+        return True
+    except Exception:
+        return False
 
-def fill_recovery_email(page, recovery_email: str) -> bool:
+def maybe_fill_recovery_email(page, recovery_email: str) -> bool:
     """Fill recovery email field on the page using fill_slowly"""
     try:
         # Try multiple selectors for recovery email field
+        headings = [
+            "Thêm email khôi phục",  # Vietnamese
+            "Add recovery email"
+        ]
+        detected = False
+        for _ in range(10):
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
+
+        if not detected:
+            return False
         selectors = [
             'input[aria-label*="recovery"]',
             'input[aria-label*="khôi phục"]',
@@ -495,6 +538,8 @@ def fill_recovery_email(page, recovery_email: str) -> bool:
                     # Fill with recovery email using fill_slowly for human-like typing
                     fill_slowly(page, field.first, recovery_email, 0.1, 0.3)
                     print(f"✅ Filled recovery email using fill_slowly: {recovery_email}")
+                    click_next(page)
+                    human_delay(2000, 3000)
                     return True
             except Exception as e:
                 print(f"⚠️ Selector {selector} failed: {e}")
@@ -505,4 +550,92 @@ def fill_recovery_email(page, recovery_email: str) -> bool:
         
     except Exception as e:
         print(f"❌ Error filling recovery email: {e}")
+        return False
+
+def maybe_fill_review_page(page) -> bool:
+    try:
+        headings = [
+            "Xem lại thông tin tài khoản của bạn",  # Vietnamese
+            "Review your account info"
+        ]
+        detected = False
+        for _ in range(10):
+            detected = check_page_by_title(page, headings)
+            if detected: break
+            page.wait_for_timeout(100)
+
+        if not detected:
+            return False
+
+        print("📋 Account review page detected, clicking Next again...")
+
+        click_next(page)
+        print("✅ Clicked Next on account review page")
+        human_delay(2000, 4000)
+    except Exception:
+        return False
+
+def maybe_fill_privacy_terms_page(page  ) -> bool:
+    try:
+        headings = [
+            "Quyền riêng tư và Điều khoản",  # Vietnamese
+            "Privacy and Terms"
+        ]
+        detected = False
+        for _ in range(10):
+            detected = check_page_by_title(page, headings)
+            if detected: break
+        
+        # Scroll down to the bottom to find the agree button
+        print("📜 Scrolling down to find agree button...")
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        human_delay(1000, 2000)
+        
+        # Look for the agree button
+        agree_selectors = [
+            'text="Tôi đồng ý"',      # Vietnamese
+            'text="I agree"',          # English
+            'button:has-text("Tôi đồng ý")',
+            'button:has-text("I agree")',
+            '[role="button"]:has-text("Tôi đồng ý")',
+            '[role="button"]:has-text("I agree")'
+        ]
+        
+        for selector in agree_selectors:
+            try:
+                agree_button = page.locator(selector)
+                if agree_button.count() > 0:
+                    print(f"✅ Found agree button: {selector}")
+                    human_click(page, agree_button.first)
+                    human_delay(1000, 5000)
+                    # Wait for redirect to mail.google.com after successful registration
+                    print("⏳ Waiting for redirect to Gmail...")
+                    try:
+                        # Wait for URL to change to mail.google.com (max 30 seconds)
+                        page.wait_for_function(
+                            "() => window.location.href.includes('mail.google.com')",
+                            timeout=60000
+                        )
+                        print("✅ Successfully redirected to Gmail!")
+
+                        return True
+                    except Exception as e:
+                        print(f"⚠️ Warning: Redirect timeout or error: {e}")
+                        # Fallback: wait a bit more and check if we're on Gmail
+                        human_delay(5000, 5000)
+                        if "mail.google.com" in page.url:
+                            print("✅ Confirmed on Gmail page")
+                        else:
+                            print(f"⚠️ Current URL: {page.url}")
+
+                    print("✅ Clicked agree button successfully!")
+                    return True
+            except Exception:
+                continue
+        
+        print("❌ Could not find agree button")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Error handling privacy and terms page: {e}")
         return False

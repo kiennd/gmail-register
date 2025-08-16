@@ -5,6 +5,7 @@ import threading
 import signal
 import os
 import time
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Optional, Tuple
 import requests
@@ -99,6 +100,48 @@ def _fetch_proxy_from_api(api_tpl: Optional[str], port: int) -> Optional[Dict[st
     return None
 
 
+def _get_random_proxy_from_file(file_path: str = "proxies.txt") -> Optional[Dict[str, Any]]:
+    """
+    Pick a random proxy from the proxies.txt file.
+    
+    Returns:
+        Random proxy dictionary or None if no proxies available
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+        
+        if not lines:
+            return None
+            
+        # Pick a random line
+        random_line = random.choice(lines)
+        
+        # Parse the proxy line (format: ip:port:username:password)
+        parts = random_line.split(':')
+        if len(parts) >= 2:
+            host = parts[0]
+            port = parts[1]
+            username = parts[2] if len(parts) > 2 else None
+            password = parts[3] if len(parts) > 3 else None
+            
+            return {
+                "server": f"socks5://{host}:{port}",
+                "username": username,
+                "password": password
+            }
+        else:
+            print(f"Warning: Invalid proxy format: {random_line}")
+            return None
+            
+    except FileNotFoundError:
+        print(f"Warning: Proxy file {file_path} not found")
+        return None
+    except Exception as e:
+        print(f"Error reading proxy file: {e}")
+        return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Assist Gmail registration using Camoufox.")
     parser.add_argument("--config", dest="config_path", default="config.json")
@@ -151,8 +194,14 @@ def main() -> None:
             user = generate_username(first, last)
             pwd = generate_password()
 
-            # Proxy per iteration (rotate IPv6)
+            # Proxy per iteration (file-based or API fallback)
+            # proxy = _get_random_proxy_from_file("proxies.txt")
+            # if not proxy and args.proxy_api:
+            #     print(f"[t{thread_id}] No proxies from file, trying API fallback...")
+            #     proxy = _fetch_proxy_from_api(args.proxy_api, proxy_port)
+
             proxy = _fetch_proxy_from_api(args.proxy_api, proxy_port)
+
             print(f"[t{thread_id}] Using proxy: {proxy}")
 
             # Per-iteration cfg

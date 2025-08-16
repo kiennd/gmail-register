@@ -3,9 +3,11 @@ from typing import Any, Dict, Optional
 
 from .human_actions import fill_slowly, human_click, human_delay
 from .steps import (
-    click_next,
-    fill_recovery_email,
     maybe_fill_basic_info,
+    maybe_fill_name_page,
+    maybe_fill_privacy_terms_page,
+    maybe_fill_recovery_email,
+    maybe_fill_review_page,
     maybe_fill_username_page,
     maybe_fill_password_page,
     is_verification_block_page,
@@ -191,77 +193,56 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], client: HidemiumClient) -> None
                 print("⚠️ Failed to inject mouse tracker, continuing without it")
 
         page.wait_for_selector('input[name="firstName"]', timeout=60_000)
-        human_delay(1000, 2000)
-        if cfg.get("first_name"):
-            try:
-                fill_slowly(page, page.locator('input[name="firstName"]').first, cfg["first_name"])
-            except Exception:
-                page.locator('input[name="firstName"]').fill(cfg["first_name"])  # fallback
-        human_delay(300, 700)
-        if cfg.get("last_name"):
-            try:
-                fill_slowly(page, page.locator('input[name="lastName"]').first, cfg["last_name"]) 
-            except Exception:
-                page.locator('input[name="lastName"]').fill(cfg["last_name"])  # fallback
-        human_delay(1000, 2000)
-        click_next(page)
-        human_delay(1000, 2000)
-
-        maybe_fill_basic_info(page)
-        human_delay(1000, 2000)
-        # Try username page, but if recommendation screen appears, select first and adopt it
-        maybe_fill_username_page(page, cfg.get("username", ""))
-        try:
-            chosen_local = maybe_choose_recommended_email(page)
-            if chosen_local:
-                # Update cfg username to the recommended email local-part for downstream use
-                cfg["username"] = chosen_local
-        except Exception:
-            pass
-        human_delay(1000, 2000)
-        maybe_fill_password_page(page, cfg.get("password", ""))
 
         # Poll briefly for verification block; if found, return to close
-        for _ in range(90):
+        recovery_email = generate_recovery_email()
+        is_finished_fill_name = False
+        is_finished_fill_basic_info = False
+        is_finished_fill_username = False
+        is_finished_fill_password = False
+        is_finished_fill_recovery_email = False
+        is_finished_fill_review = False
+        is_finished_all = False
+        for _ in range(20):
             try:
+                if not is_finished_fill_name:
+                    is_finished_fill_name = maybe_fill_name_page(page, cfg.get("first_name", ""), cfg.get("last_name", ""))
+
+                if not is_finished_fill_basic_info:
+                    is_finished_fill_basic_info = maybe_fill_basic_info(page)
+
+                if not is_finished_fill_username:
+                    is_finished_fill_username = maybe_fill_username_page(page, cfg.get("username", ""))
+
+                if not is_finished_fill_password:
+                    is_finished_fill_password = maybe_fill_password_page(page, cfg.get("password", ""))
+
+                chosen_local = maybe_choose_recommended_email(page)
+                if chosen_local:
+                    # Update cfg username to the recommended email local-part for downstream use
+                    cfg["username"] = chosen_local
+
+
+                if not is_finished_fill_recovery_email:
+                    is_finished_fill_recovery_email = maybe_fill_recovery_email(page, recovery_email)
+
+                if not is_finished_fill_review:
+                    is_finished_fill_review = maybe_fill_review_page(page)
+
+                if not is_finished_all:
+                    is_finished_all = maybe_fill_privacy_terms_page(page)
+
+                if is_finished_all:
+                    write_success_to_file(cfg, recovery_email)
+                    page.wait_for_timeout(1000)
+                    return  # Exit successfully after agreeing to terms
+
+                
                 if is_verification_block_page(page):
                     print("Verification block detected (QR/device/phone). Closing.")
                     human_delay(1000, 1000)
                     return
-                    
-                # Check if recovery email page appears (success!)
-                if is_recovery_email_page(page):
-                    print("🎉 Recovery email page detected - Registration successful!")
-                    
-                    # Generate recovery email
-                    recovery_email = generate_recovery_email()
-                    print(f"📧 Generated recovery email: {recovery_email}")
-
-                    # Fill recovery email
-                    fill_recovery_email(page, recovery_email)
-                    click_next(page)
-                    # Wait for account review page and click Next again
-                    human_delay(2000, 4000)
-                    
-                # Check if we're on account review page
-                if is_account_review_page(page):
-                    print("📋 Account review page detected, clicking Next again...")
-                    click_next(page)
-                    print("✅ Clicked Next on account review page")
-                    human_delay(2000, 4000)
-                    
-                    # Wait for privacy and terms page, then scroll down and click agree
-                if is_privacy_terms_page(page):
-                    print("📜 Privacy and Terms page detected, scrolling down and clicking agree...")
-                    handle_privacy_terms_page(page)
-                    print("✅ Privacy and Terms completed successfully!")
-                    
-                    
-                    write_success_to_file(cfg, recovery_email)
-                    page.wait_for_timeout(1000)
-
-                    return  # Exit successfully after agreeing to terms
-                    
+                
             except Exception:
                 pass
             page.wait_for_timeout(1000)
@@ -276,136 +257,6 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], client: HidemiumClient) -> None
             print(f"⚠️ Warning: Failed to remove mouse tracker: {e}")
 
         print("Done.")
-
-
-def is_recovery_email_page(page) -> bool:
-    """Check if current page is recovery email page"""
-    try:
-        # Check for recovery email indicators
-        recovery_indicators = [
-            "Thêm email khôi phục",  # Vietnamese
-            "Add recovery email",     # English
-            "recovery email",
-            "email khôi phục",
-            "Địa chỉ email khôi phục"
-        ]
-        
-        for indicator in recovery_indicators:
-            if page.locator(f'text="{indicator}"').count() > 0:
-                return True
-            if page.get_by_role("heading", name=indicator).count() > 0:
-                return True
-        
-        # Check for recovery email input field
-        if page.locator('input[aria-label*="recovery"], input[aria-label*="khôi phục"]').count() > 0:
-            return True
-            
-        return False
-    except Exception:
-        return False
-
-
-def is_account_review_page(page) -> bool:
-    """Check if current page is account review page"""
-    try:
-        # Check for account review indicators
-        review_indicators = [
-            "Xem lại thông tin tài khoản của bạn",  # Vietnamese
-        ]
-        
-        for indicator in review_indicators:
-            if page.locator(f'text="{indicator}"').count() > 0:
-                return True
-            if page.get_by_role("heading", name=indicator).count() > 0:
-                return True
-        
-        # Check for account info display (like email address shown)
-        if page.locator('text="@gmail.com"').count() > 0:
-            return True
-            
-        return False
-    except Exception:
-        return False
-
-
-def is_privacy_terms_page(page) -> bool:
-    """Check if current page is privacy and terms page"""
-    try:
-        # Check for privacy and terms indicators
-        privacy_indicators = [
-            "Quyền riêng tư và Điều khoản",  # Vietnamese
-            "Privacy and Terms",              # English
-            "quyền riêng tư",
-            "privacy",
-            "điều khoản",
-            "terms"
-        ]
-        
-        for indicator in privacy_indicators:
-            if page.locator(f'text="{indicator}"').count() > 0:
-                return True
-            if page.get_by_role("heading", name=indicator).count() > 0:
-                return True
-            
-        return False
-    except Exception:
-        return False
-
-
-def handle_privacy_terms_page(page) -> bool:
-    """Handle privacy and terms page: scroll down and click agree"""
-    try:
-        # Scroll down to the bottom to find the agree button
-        print("📜 Scrolling down to find agree button...")
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        human_delay(1000, 2000)
-        
-        # Look for the agree button
-        agree_selectors = [
-            'text="Tôi đồng ý"',      # Vietnamese
-            'text="I agree"',          # English
-            'button:has-text("Tôi đồng ý")',
-            'button:has-text("I agree")',
-            '[role="button"]:has-text("Tôi đồng ý")',
-            '[role="button"]:has-text("I agree")'
-        ]
-        
-        for selector in agree_selectors:
-            try:
-                agree_button = page.locator(selector)
-                if agree_button.count() > 0:
-                    print(f"✅ Found agree button: {selector}")
-                    human_click(page, agree_button.first)
-                    human_delay(1000, 5000)
-                    # Wait for redirect to mail.google.com after successful registration
-                    print("⏳ Waiting for redirect to Gmail...")
-                    try:
-                        # Wait for URL to change to mail.google.com (max 30 seconds)
-                        page.wait_for_function(
-                            "() => window.location.href.includes('mail.google.com')",
-                            timeout=60000
-                        )
-                        print("✅ Successfully redirected to Gmail!")
-                    except Exception as e:
-                        print(f"⚠️ Warning: Redirect timeout or error: {e}")
-                        # Fallback: wait a bit more and check if we're on Gmail
-                        human_delay(5000, 5000)
-                        if "mail.google.com" in page.url:
-                            print("✅ Confirmed on Gmail page")
-                        else:
-                            print(f"⚠️ Current URL: {page.url}")
-
-                    print("✅ Clicked agree button successfully!")
-                    return True
-            except Exception:
-                continue
-        
-        print("❌ Could not find agree button")
-        return False
-        
-    except Exception as e:
-        print(f"❌ Error handling privacy and terms page: {e}")
-        return False
 
 
 def generate_recovery_email() -> str:
