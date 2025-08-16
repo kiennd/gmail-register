@@ -159,17 +159,6 @@ def fill_by_label_if_present(page, field_label: str, value: str) -> bool:
     return False
 
 
-def _bring_to_front(page) -> None:
-    try:
-        page.bring_to_front()
-        print("[DEBUG] Brought page to front")
-    except Exception:
-        try:
-            page.evaluate("() => window.focus()")
-            print("[DEBUG] Focused window via evaluate")
-        except Exception:
-            pass
-
 
 def first_present_label(page, labels: list[str]) -> str | None:
     for lab in labels:

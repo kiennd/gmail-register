@@ -31,7 +31,7 @@
           },
           "proxy": {
               "IsProxy": true,
-              "checkBeforeStart": true
+              "checkBeforeStart": false
           },
           "webgl2": {
               "canvas": "perfect",
@@ -117,7 +117,7 @@
               "flash_enable": true
           },
           "storage": null,
-          "StartURL": "http://192.168.100.100:5555/changeipv6/?port=11001&apikey=2222",
+          "StartURL": "https://icanhazip.com",
           "Uid": null,
           "CanvasModel": null,
           "extension": null,

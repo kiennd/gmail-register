@@ -39,7 +39,6 @@ def load_config_from_file(path: str) -> Dict[str, Any]:
         "headless": raw.get("HEADLESS", False),
         "humanize": parse_bool(raw.get("HUMANIZE"), True),
         "persistent_context": parse_bool(raw.get("PERSISTENT_CONTEXT"), True),
-        "user_data_dir": raw.get("USER_DATA_DIR") or None,
         "debug": parse_bool(raw.get("DEBUG"), False),
         # Camoufox options
         "camoufox_args": raw.get("CAMOUFOX_ARGS") or None,

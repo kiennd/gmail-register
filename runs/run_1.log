@@ -1,4 +1,0 @@
-Using identity (random): Jordan Johnson, username=jor.danjohnson508440
-Launching Camoufox...
-C:\Users\OS\Desktop\gmail-register\app\register.py:190: LeakWarning: When using a proxy, it is heavily recommended that you pass `geoip=True`.
-  browser = browser_cm.__enter__()

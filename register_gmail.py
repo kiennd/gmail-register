@@ -9,9 +9,38 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, Optional, Tuple
 import requests
 
+import tkinter as tk
+
+
 from app.config_loader import load_config_from_file
 from app.register import build_camoufox_kwargs, register_flow, create_temp_hidemium_profile
 from app.generator import generate_name, generate_username, generate_password, ensure_password_has_special
+
+
+def get_screen_size() -> Tuple[int, int]:
+    """
+    Get the current screen size automatically.
+    Falls back to default values if detection fails.
+    
+    Returns:
+        Tuple of (width, height) in pixels
+    """
+    try:
+        if tk:
+            root = tk.Tk()
+            root.withdraw()  # Hide the window
+            screen_width = root.winfo_screenwidth()
+            screen_height = root.winfo_screenheight()
+            root.destroy()
+            print(f"Detected screen size: {screen_width}x{screen_height}")
+            return screen_width, screen_height
+        else:
+            # Fallback for systems without tkinter
+            print("Warning: tkinter not available, using default screen size 1920x1080")
+            return 1920, 1080
+    except Exception as e:
+        print(f"Warning: Failed to detect screen size: {e}, using default 1920x1080")
+        return 1920, 1080
 
 
 def _normalize_proxy_response(raw: str) -> Optional[Dict[str, Any]]:
@@ -80,24 +109,19 @@ def main() -> None:
     # Minimal CLI overrides to support tiling and per-run profiles
     parser.add_argument("--engine", choices=["camoufox", "hidemium"], default=cfg.get("engine", "hidemium"))
     parser.add_argument("--lang", dest="lang", default=cfg.get("lang"))
-    parser.add_argument("--wait", dest="wait_seconds", type=int, default=int(cfg.get("wait_seconds", 30)))
-    parser.add_argument("--headless", dest="headless", default=None, help="true|false|virtual")
-    parser.add_argument("--user-data-dir", dest="user_data_dir", default=None)
     parser.add_argument("--creds-out", dest="creds_out", default=None)
     # Hidemium settings (fixed defaults; no token, URL fixed to localhost:2222, random profile name internal, delete profile always true)
     # Proxy via API per launch
     parser.add_argument("--proxy-api", dest="proxy_api", default="http://192.168.100.100:5555/changeipv6/?port={port}&apikey=2222")
     # Concurrency and window tiling
     parser.add_argument("--threads", dest="threads", type=int, default=1)
-    parser.add_argument("--screen-w", dest="screen_w", type=int, default=1920)
-    parser.add_argument("--screen-h", dest="screen_h", type=int, default=1080)
     # Window tiling from multi-run
-    parser.add_argument("--win-x", dest="win_x", type=int, default=None)
-    parser.add_argument("--win-y", dest="win_y", type=int, default=None)
-    parser.add_argument("--win-w", dest="win_w", type=int, default=None)
-    parser.add_argument("--win-h", dest="win_h", type=int, default=None)
     
     args = parser.parse_args()
+
+    # Automatically detect screen size
+    screen_w, screen_h = get_screen_size()
+    print(f"Using screen size: {screen_w}x{screen_h}")
 
     # Thread-safe file write
     write_lock = threading.Lock()
@@ -116,7 +140,7 @@ def main() -> None:
     def run_one(thread_id: int, total_threads: int, stop_event: threading.Event) -> None:
         # Per-thread constants
         proxy_port = 10000 + thread_id
-        x, y, w, h = compute_tile(total_threads, thread_id, args.screen_w, args.screen_h)
+        x, y, w, h = compute_tile(total_threads, thread_id, screen_w, screen_h)
         engine = args.engine
         lang_primary = (args.lang or cfg.get("lang") or "en").split("-")[0]
         open_command = f"--lang={lang_primary} --window-position={x},{y} --window-size={w},{h}"
@@ -130,10 +154,8 @@ def main() -> None:
             # Proxy per iteration (rotate IPv6)
             proxy = _fetch_proxy_from_api(args.proxy_api, proxy_port)
             print(f"[t{thread_id}] Using proxy: {proxy}")
-            open_proxy_param = _to_hidemium_proxy_param(proxy)
 
             # Per-iteration cfg
-            user_data_dir = args.user_data_dir or cfg.get("user_data_dir") or f"profiles/{user}"
             hidemium_custom = {"command": open_command}
             effective_cfg = {
                 **cfg,
@@ -142,9 +164,8 @@ def main() -> None:
                 "username": user,
                 "password": pwd,
                 "engine": engine,
-                "headless": (args.headless if args.headless is not None else cfg.get("headless")),
+                "headless": False,
                 "humanize": cfg.get("humanize"),
-                "user_data_dir": user_data_dir,
                 "window_pos": (x, y),
                 "window_size": (w, h),
                 "hidemium_delete_profile": True,
@@ -157,6 +178,8 @@ def main() -> None:
                 print(f"[t{thread_id}] Creating temporary Hidemium profile...")
                 try:
                     profile_uuid = create_temp_hidemium_profile(effective_cfg, proxy)
+                    open_proxy_param = _to_hidemium_proxy_param(proxy)
+                    print(f"[t{thread_id}] Open proxy param: {open_proxy_param}")
                     engine_kwargs = {"profile_uuid": profile_uuid, "open_command": open_command, "open_proxy_param": open_proxy_param}
                     print(f"[t{thread_id}] Created temporary profile: {profile_uuid}")
                 except Exception as e:
@@ -173,7 +196,6 @@ def main() -> None:
                 register_flow(
                     cfg=effective_cfg,
                     engine_kwargs=engine_kwargs,
-                    wait_seconds=args.wait_seconds,
                 )
             except Exception as e:
                 print(f"[t{thread_id}] Run error: {e}")

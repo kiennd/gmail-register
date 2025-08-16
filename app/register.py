@@ -12,8 +12,6 @@ from .steps import (
     maybe_choose_recommended_email,
 )
 from .hidemium_client import HidemiumClient
-from .steps import _bring_to_front
-
 # Keep Camoufox import as fallback
 try:
     from camoufox.sync_api import Camoufox
@@ -68,14 +66,10 @@ def build_camoufox_kwargs(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]], 
         "humanize": cfg.get("humanize", True),
         "os": cfg.get("camoufox_os", "windows"),
         "debug": debug,
-        # Honor config for persistence to avoid first-run prompts and keep state if desired
-        "persistent_context": cfg.get("persistent_context", True),
     }
     if cfg.get("lang"):
         kwargs["locale"] = _normalize_locale(cfg.get("lang"))
-    # Avoid constraining fingerprint generator; set size via Chromium flags instead
-    # Window size is handled through --window-size in args below
-    # Optional pass-throughs
+
     if cfg.get("camoufox_args"):
         kwargs["args"] = cfg.get("camoufox_args")
     if cfg.get("camoufox_config") and isinstance(cfg.get("camoufox_config"), dict):
@@ -101,18 +95,11 @@ def build_camoufox_kwargs(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]], 
                 kwargs["args"] = [existing] + win_args
         else:
             kwargs["args"] = win_args
-    # Attach user_data_dir if provided and persistence is enabled
-    if kwargs.get("persistent_context") and cfg.get("user_data_dir"):
-        kwargs["user_data_dir"] = cfg.get("user_data_dir")
     if proxy:
         kwargs["proxy"] = proxy
         kwargs["geoip"] = False
     return kwargs
 
-
-def build_hidemium_client(cfg: Dict[str, Any]) -> HidemiumClient:
-    """Build Hidemium API client with fixed defaults (localhost:2222, no token)."""
-    return HidemiumClient()
 
 
 def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, Any]]) -> str:
@@ -120,7 +107,7 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
     import uuid
     import time
     
-    client = build_hidemium_client(cfg)
+    client = HidemiumClient()
     
     # Generate unique profile name for one-time use
     timestamp = int(time.time())
@@ -139,11 +126,8 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
     
     # Build complete profile configuration using new custom API
     try:
-        # Create profile using custom API with full configuration
-        is_local = cfg.get("hidemium_local_profile", True)
-        print(f"Creating {'local' if is_local else 'cloud'} profile with custom configuration...")
-        
-        response = client.create_browser_profile(profile_name, True)
+        # Create profile using custom API with full configuration        
+        response = client.create_browser_profile(profile_name)
         
         # Extract UUID from response (support both cloud and local formats)
         profile_uuid = None
@@ -158,7 +142,7 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
             
         print(f"Created temporary profile with UUID: {profile_uuid}")
         try:
-            client.update_fingerprint(profile_uuid, is_local=is_local)
+            client.update_fingerprint(profile_uuid)
         except Exception as e:
             print(f"Warning: Failed to update fingerprint: {e}")
         return profile_uuid
@@ -169,37 +153,21 @@ def create_temp_hidemium_profile(cfg: Dict[str, Any], proxy: Optional[Dict[str, 
         raise
 
 
-def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: HidemiumClient) -> None:
+def _fill_signup_flow(page, cfg: Dict[str, Any], client: HidemiumClient) -> None:
         # If explicit window_size provided, set viewport accordingly
         size = cfg.get("window_size")
-        if size and isinstance(size, tuple):
-            try:
-                w, h = size
-                page.set_viewport_size({"width": int(w), "height": int(h)})
-            except Exception:
-                page.set_viewport_size({"width": 1366, "height": 768})
-        else:
-            page.set_viewport_size({"width": 1366, "height": 768})
+        w, h = size
+        page.set_viewport_size({"width": int(w), "height": int(h)})
 
         print("Opening Google sign-up...", flush=True)
-        try:
-
-            _bring_to_front(page)
-        except Exception:
-            pass
         
         # Step 1: Visit Workspace Gmail landing (warm-up)
         try:
             page.goto(WORKSPACE_LANDING_URL, timeout=90_000)
             human_delay(1200, 2000)
+
         except Exception:
             pass
-        try:
-
-            _bring_to_front(page)
-        except Exception:
-            pass
-
         # Step 2: Continue with current flow at the actual sign-up URL
         # Respect UI language via hl parameter for Google flows
         final_url = SIGNUP_URL
@@ -258,7 +226,7 @@ def _fill_signup_flow(page, cfg: Dict[str, Any], wait_seconds: int, client: Hide
             try:
                 if is_verification_block_page(page):
                     print("Verification block detected (QR/device/phone). Closing.")
-                    human_delay(1000, 2000)
+                    human_delay(1000, 1000)
                     return
                     
                 # Check if recovery email page appears (success!)
@@ -485,7 +453,7 @@ def write_success_to_file(cfg: Dict[str, Any], recovery_email: str) -> None:
         print(f"❌ Error writing to success file: {e}")
 
 
-def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_seconds: int) -> None:
+def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any]) -> None:
     engine = cfg.get("engine", "camoufox").lower()
     
     if engine == "hidemium":
@@ -495,7 +463,7 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
         
         try:
             # Step 1: Create temporary profile
-            client = build_hidemium_client(cfg)
+            client = HidemiumClient()
             profile_uuid = engine_kwargs.get("profile_uuid")
             
             if not profile_uuid:
@@ -510,7 +478,7 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
             
             # Step 3: Execute registration flow
             print("Executing Gmail registration flow...", flush=True)
-            _fill_signup_flow(page, cfg, wait_seconds, client)
+            _fill_signup_flow(page, cfg, client)
             
             print("Registration flow completed successfully!", flush=True)
             
@@ -574,4 +542,4 @@ def register_flow(cfg: Dict[str, Any], engine_kwargs: Dict[str, Any], wait_secon
                     page.evaluate("() => window.focus()")
                 except Exception:
                     pass
-            _fill_signup_flow(page, cfg, wait_seconds, None)  # Pass None for client in fallback
+            _fill_signup_flow(page, cfg, None)  # Pass None for client in fallback
