@@ -152,7 +152,6 @@ def main() -> None:
     # Minimal CLI overrides to support tiling and per-run profiles
     parser.add_argument("--engine", choices=["camoufox", "hidemium"], default=cfg.get("engine", "hidemium"))
     parser.add_argument("--lang", dest="lang", default=cfg.get("lang"))
-    parser.add_argument("--creds-out", dest="creds_out", default=None)
     # Hidemium settings (fixed defaults; no token, URL fixed to localhost:2222, random profile name internal, delete profile always true)
     # Proxy via API per launch
     parser.add_argument("--proxy-api", dest="proxy_api", default="http://192.168.100.100:5555/changeipv6/?port={port}&apikey=2222")
@@ -248,17 +247,6 @@ def main() -> None:
                 )
             except Exception as e:
                 print(f"[t{thread_id}] Run error: {e}")
-            finally:
-                creds_out = args.creds_out or cfg.get("creds_out")
-                if creds_out:
-                    try:
-                        email = f"{user}@gmail.com"
-                        with write_lock:
-                            with open(creds_out, "a", encoding="utf-8") as fh:
-                                fh.write(f"{email}|{pwd}\n")
-                        print(f"[t{thread_id}] Saved credentials to {creds_out}")
-                    except Exception as e:
-                        print(f"[t{thread_id}] Could not write credentials: {e}", file=sys.stderr)
             # brief yield to allow stop signal processing between cycles
             time.sleep(0.2)
 
